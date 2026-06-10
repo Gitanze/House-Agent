@@ -1,0 +1,112 @@
+[
+  {
+    "id": "case_003",
+    "layoutType": "2室1厅1卫",
+    "rooms": [
+      {
+        "id": "bedroom_a",
+        "type": "primary_bedroom",
+        "name": "卧室A",
+        "position": "西北侧",
+        "connectedTo": [
+          "kitchen"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "kitchen",
+        "type": "kitchen",
+        "name": "厨房",
+        "position": "中部偏西",
+        "connectedTo": [
+          "bedroom_a",
+          "bedroom_b",
+          "living_room"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_b",
+        "type": "bedroom",
+        "name": "卧室B",
+        "position": "西南侧",
+        "connectedTo": [
+          "kitchen",
+          "living_room",
+          "balcony"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "living_room",
+        "type": "living_room",
+        "name": "客厅",
+        "position": "东侧中部",
+        "connectedTo": [
+          "kitchen",
+          "bedroom_b",
+          "bathroom"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bathroom",
+        "type": "bathroom",
+        "name": "卫生间",
+        "position": "东北侧",
+        "connectedTo": [
+          "living_room"
+        ],
+        "hasWindow": false,
+        "light": "unknown"
+      },
+      {
+        "id": "balcony",
+        "type": "balcony",
+        "name": "阳台",
+        "position": "南侧",
+        "connectedTo": [
+          "bedroom_b"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      }
+    ],
+    "features": {
+      "northSouthVentilation": "unknown",
+      "dynamicStaticZoning": "good",
+      "kitchenDiningFlow": "medium",
+      "bathroomPressure": "low",
+      "lighting": "good",
+      "storagePotential": "medium"
+    },
+    "pros": [
+      "双卧室布局",
+      "带生活阳台",
+      "功能分区清晰"
+    ],
+    "cons": [
+      "仅1个卫生间",
+      "厨房面积偏小",
+      "无独立餐厅"
+    ],
+    "suitableFor": [
+      "刚需小家庭",
+      "年轻夫妻",
+      "单身人士"
+    ],
+    "unknowns": [
+      "是否有独立餐厅空间",
+      "层高数据",
+      "阳台是否可封闭"
+    ],
+    "needsReview": [
+      "房间门洞连接关系的确认",
+      "卫生间采光情况的确认"
+    ]
+  }
+]

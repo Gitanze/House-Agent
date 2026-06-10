@@ -1,0 +1,145 @@
+[
+  {
+    "id": "case_001",
+    "title": "紧凑三居动静分离",
+    "imagePath": "benchmark/images/case_001.png",
+    "layoutType": "3室2厅2卫",
+    "rooms": [
+      {
+        "id": "entrance",
+        "type": "entrance",
+        "name": "玄关",
+        "position": "西侧入口",
+        "connectedTo": [
+          "dining"
+        ],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "dining",
+        "type": "dining_room",
+        "name": "餐厅",
+        "position": "北部偏西",
+        "connectedTo": [
+          "entrance",
+          "living",
+          "kitchen"
+        ],
+        "hasWindow": false,
+        "light": "medium"
+      },
+      {
+        "id": "living",
+        "type": "living_room",
+        "name": "客厅",
+        "position": "北部偏东",
+        "connectedTo": [
+          "dining",
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "kitchen",
+        "type": "kitchen",
+        "name": "厨房",
+        "position": "北侧",
+        "connectedTo": [
+          "dining",
+          "balcony"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "primary_bedroom",
+        "type": "primary_bedroom",
+        "name": "主卧",
+        "position": "南侧",
+        "connectedTo": [
+          "corridor",
+          "primary_bathroom"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "child_room",
+        "type": "bedroom1",
+        "name": "次卧1",
+        "position": "南侧东部",
+        "connectedTo": [
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "medium"
+      },
+      {
+        "id": "bedroom",
+        "type": "bedroom2",
+        "name": "次卧2",
+        "position": "东侧中部",
+        "connectedTo": [
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "medium"
+      },
+      {
+        "id": "bathroom",
+        "type": "bathroom",
+        "name": "卫生间",
+        "position": "西侧中部",
+        "connectedTo": [
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "medium"
+      },
+      {
+        "id": "corridor",
+        "type": "corridor",
+        "name": "走廊",
+        "position": "中部",
+        "connectedTo": [
+          "living",
+          "primary_bedroom",
+          "bedroom1",
+          "bedroom2",
+          "bathroom"
+        ],
+        "hasWindow": false,
+        "light": "weak"
+      }
+    ],
+    "features": {
+      "northSouthVentilation": false,
+      "dynamicStaticZoning": "good",
+      "kitchenDiningFlow": "good",
+      "bathroomPressure": "medium",
+      "lighting": "good",
+      "storagePotential": "medium"
+    },
+    "pros": [
+      "open_living_dining",
+      "east_facing_living_room",
+      "kitchen_dining_flow_good",
+      "clear_zoning",
+      "corridor_private_zone"
+    ],
+    "cons": [
+      "dual_bathroom_as_concern",
+      "weak_lighting_room",
+      "corridor_area_loss"
+    ],
+    "suitableFor": [
+      "young_family",
+      "three_person_family",
+      "multi_room_need",
+      "multi_generation_family"
+    ],
+    "notes": "适合验证三居、通风、单卫压力和动静分区。"
+  }
+]

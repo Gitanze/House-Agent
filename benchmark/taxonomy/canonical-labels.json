@@ -1,0 +1,36 @@
+{
+  "pros": [
+    { "id": "good_lighting", "label": "采光较好", "aliases": ["采光好", "采光良好", "明亮", "南向采光", "主要房间采光良好"] },
+    { "id": "clear_zoning", "label": "动静分区清晰", "aliases": ["动静分区合理", "功能分区清晰", "功能分区明确", "动静分区清晰合理"] },
+    { "id": "kitchen_dining_flow_good", "label": "餐厨动线顺", "aliases": ["餐厨相邻", "餐厨联动顺畅", "厨房与餐厅相邻", "厨房与客厅相邻动线顺畅"] },
+    { "id": "large_living_room", "label": "客厅尺度较好", "aliases": ["客厅面积大", "客厅空间宽敞", "客厅尺度较好", "宽厅"] },
+    { "id": "large_kitchen", "label": "厨房尺度较好", "aliases": ["厨房面积大", "厨房宽敞", "厨房尺度较好"] },
+    { "id": "living_balcony_connected", "label": "客厅连接阳台", "aliases": ["客厅外接阳台", "阳台连接客厅", "客厅带阳台"] },
+    { "id": "open_living_dining", "label": "餐客厅通透", "aliases": ["餐客厅通透", "客餐厅通透", "客餐一体通透"] },
+    { "id": "east_facing_living_room", "label": "东向客厅", "aliases": ["东向客厅", "客厅朝东"] },
+    { "id": "corridor_private_zone", "label": "静区走道式", "aliases": ["静区走道式", "卧室区走道式", "静区走廊组织"] },
+    { "id": "storage_good", "label": "收纳潜力较好", "aliases": ["储物间实用", "独立储物空间", "收纳空间较好", "配备储物空间"] },
+    { "id": "multi_bedroom_flexible", "label": "多房间弹性强", "aliases": ["多卧室适配多人口家庭", "三室布局", "四房弹性", "多房间弹性"] },
+    { "id": "dual_bathroom_convenient", "label": "双卫使用便利", "aliases": ["双卫设计满足需求", "双卫便利", "两个卫生间"] }
+  ],
+  "cons": [
+    { "id": "single_bath_pressure", "label": "单卫使用压力", "aliases": ["仅设1间卫浴易拥挤", "单卫压力", "卫生间压力"] },
+    { "id": "weak_lighting_room", "label": "局部房间采光弱", "aliases": ["采光弱", "无直接采光", "部分房间无对外窗", "暗卫", "暗厨", "卫生间无窗采光差"] },
+    { "id": "corridor_area_loss", "label": "过道占用面积", "aliases": ["过道占用一定面积", "走廊占用面积", "交通面积偏多"] },
+    { "id": "weak_zoning", "label": "动静分区一般", "aliases": ["动静分区不够清晰", "动静分区弱"] },
+    { "id": "small_room_or_space", "label": "局部空间偏紧凑", "aliases": ["局部空间较为局促", "小空间偏紧凑", "局促"] },
+    { "id": "weak_entrance_storage", "label": "入户收纳弱", "aliases": ["门厅空间较狭小", "玄关收纳弱", "入户收纳不足"] },
+    { "id": "combined_living_dining", "label": "客餐厅功能复合", "aliases": ["客厅兼餐厅", "客餐一体", "客餐厅功能复合"] },
+    { "id": "dual_bathroom_as_concern", "label": "双卫", "aliases": ["双卫", "两个卫生间"] },
+    { "id": "unclear_room_function", "label": "局部房间功能不明确", "aliases": ["书房状态不明确", "未拍摄房间信息缺失", "房间功能待确认"] }
+  ],
+  "suitableFor": [
+    { "id": "young_family", "label": "年轻家庭", "aliases": ["年轻夫妻", "年轻情侣", "小家庭", "刚需家庭", "首次置业"] },
+    { "id": "three_person_family", "label": "三口之家", "aliases": ["一家三口", "三口家庭"] },
+    { "id": "improvement_family", "label": "改善家庭", "aliases": ["改善型家庭", "改善型需求"] },
+    { "id": "multi_generation_family", "label": "多代同住", "aliases": ["三代同住", "多代家庭"] },
+    { "id": "multi_room_need", "label": "多房间需求家庭", "aliases": ["多房间需求人群", "大家庭居住", "多孩家庭", "多子女家庭", "二孩过渡"] },
+    { "id": "single_or_couple", "label": "单身或二人居住", "aliases": ["单身人士", "二人世界"] },
+    { "id": "storage_focused_family", "label": "重视收纳家庭", "aliases": ["重视收纳", "收纳需求高"] }
+  ]
+}

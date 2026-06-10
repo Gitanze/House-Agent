@@ -1,0 +1,100 @@
+[
+  {
+    "id": "case_002",
+    "layoutType": "3室1厅1卫",
+    "rooms": [
+      {
+        "id": "entrance",
+        "type": "entrance",
+        "name": "门厅",
+        "connectedTo": ["living", "bathroom"],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "living",
+        "type": "living_room",
+        "name": "客厅",
+        "connectedTo": ["entrance", "kitchen", "bedroom_c", "bedroom_b", "corridor", "balcony"],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "kitchen",
+        "type": "kitchen",
+        "name": "厨房",
+        "connectedTo": ["living"],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_c",
+        "type": "bedroom",
+        "name": "卧室C",
+        "connectedTo": ["living"],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "bathroom",
+        "type": "bathroom",
+        "name": "卫生间",
+        "connectedTo": ["entrance"],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "bedroom_b",
+        "type": "primary_bedroom",
+        "name": "卧室B",
+        "connectedTo": ["living"],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "corridor",
+        "type": "corridor",
+        "name": "过道",
+        "connectedTo": ["living", "bedroom_a", "storage"],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "storage",
+        "type": "storage",
+        "name": "储物间",
+        "connectedTo": ["corridor"],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "bedroom_a",
+        "type": "bedroom",
+        "name": "卧室A",
+        "connectedTo": ["corridor"],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "balcony",
+        "type": "balcony",
+        "name": "阳台",
+        "connectedTo": ["living"],
+        "hasWindow": true,
+        "light": "good"
+      }
+    ],
+    "features": {
+      "northSouthVentilation": false,
+      "dynamicStaticZoning": "medium",
+      "kitchenDiningFlow": "medium",
+      "bathroomPressure": "medium",
+      "lighting": "medium",
+      "storagePotential": "good"
+    },
+    "pros": ["客厅面积大", "厨房面积大", "储物间实用", "阳台连接客厅"],
+    "cons": ["单卫压力", "卧室C采光弱", "客厅兼餐厅"],
+    "suitableFor": ["三口之家", "年轻家庭"],
+    "unknowns": ["卧室C是否有外窗需要人工复核"]
+  }
+]

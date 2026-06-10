@@ -1,0 +1,177 @@
+[
+  {
+    "id": "case_001",
+    "layoutType": "3室2厅2卫",
+    "rooms": [
+      {
+        "id": "kitchen",
+        "type": "kitchen",
+        "name": "厨房",
+        "position": "西北侧",
+        "connectedTo": [
+          "dining_room",
+          "balcony"
+        ],
+        "hasWindow": false,
+        "light": "unknown"
+      },
+      {
+        "id": "balcony",
+        "type": "balcony",
+        "name": "阳台",
+        "position": "厨房东侧",
+        "connectedTo": [
+          "kitchen"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "unrecorded_room",
+        "type": "unknown",
+        "name": "此房间未拍摄",
+        "position": "西侧中部",
+        "connectedTo": [
+          "dining_room",
+          "bathroom_a"
+        ],
+        "hasWindow": false,
+        "light": "unknown"
+      },
+      {
+        "id": "bathroom_a",
+        "type": "bathroom",
+        "name": "卫生间A",
+        "position": "中部偏北",
+        "connectedTo": [
+          "corridor",
+          "unrecorded_room"
+        ],
+        "hasWindow": false,
+        "light": "unknown"
+      },
+      {
+        "id": "bathroom_b",
+        "type": "bathroom",
+        "name": "卫生间B",
+        "position": "中部偏南",
+        "connectedTo": [
+          "corridor"
+        ],
+        "hasWindow": false,
+        "light": "unknown"
+      },
+      {
+        "id": "bedroom_c",
+        "type": "bedroom",
+        "name": "卧室C",
+        "position": "东侧北部",
+        "connectedTo": [
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_b",
+        "type": "bedroom",
+        "name": "卧室B",
+        "position": "东侧中部",
+        "connectedTo": [
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "primary_bedroom",
+        "type": "primary_bedroom",
+        "name": "卧室A",
+        "position": "南侧中部",
+        "connectedTo": [
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "living_room",
+        "type": "living_room",
+        "name": "客厅",
+        "position": "东侧",
+        "connectedTo": [
+          "dining_room",
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "dining_room",
+        "type": "dining_room",
+        "name": "餐厅",
+        "position": "西侧中部",
+        "connectedTo": [
+          "kitchen",
+          "living_room",
+          "unrecorded_room"
+        ],
+        "hasWindow": false,
+        "light": "medium"
+      },
+      {
+        "id": "corridor",
+        "type": "corridor",
+        "name": "过道",
+        "position": "中部",
+        "connectedTo": [
+          "bathroom_a",
+          "bathroom_b",
+          "bedroom_c",
+          "bedroom_b",
+          "primary_bedroom",
+          "living_room"
+        ],
+        "hasWindow": false,
+        "light": "unknown"
+      }
+    ],
+    "features": {
+      "northSouthVentilation": "unknown",
+      "dynamicStaticZoning": "good",
+      "kitchenDiningFlow": "good",
+      "bathroomPressure": "low",
+      "lighting": "good",
+      "storagePotential": "unknown"
+    },
+    "pros": [
+      "dual_bathroom_convenient",
+      "large_living_room",
+      "kitchen_dining_flow_good",
+      "good_lighting",
+      "multi_bedroom_flexible"
+    ],
+    "cons": [
+      "corridor_area_loss",
+      "small_room_or_space",
+      "unclear_room_function"
+    ],
+    "suitableFor": [
+      "three_person_family",
+      "young_family",
+      "multi_room_need",
+      "improvement_family"
+    ],
+    "unknowns": [
+      "未拍摄房间的功能与属性",
+      "厨房及卫生间是否具备窗户",
+      "南北通风的实际效果",
+      "入户区域收纳空间情况"
+    ],
+    "needsReview": [
+      "未拍摄房间的功能类型确认",
+      "南北通透情况的复核",
+      "局部房间采光强度的验证"
+    ]
+  }
+]

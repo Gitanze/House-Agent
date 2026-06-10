@@ -1,0 +1,164 @@
+[
+  {
+    "id": "case_002",
+    "layoutType": "3室1厅1卫",
+    "rooms": [
+      {
+        "id": "entrance",
+        "type": "entrance",
+        "name": "门厅",
+        "position": "中部偏西",
+        "connectedTo": [
+          "bedroom_c",
+          "living_room",
+          "bathroom"
+        ],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "bathroom",
+        "type": "bathroom",
+        "name": "卫生间",
+        "position": "西侧中部",
+        "connectedTo": [
+          "entrance"
+        ],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "bedroom_c",
+        "type": "bedroom",
+        "name": "卧室C",
+        "position": "北侧中部偏西",
+        "connectedTo": [
+          "entrance"
+        ],
+        "hasWindow": true,
+        "light": "medium"
+      },
+      {
+        "id": "kitchen",
+        "type": "kitchen",
+        "name": "厨房",
+        "position": "北侧中部偏东",
+        "connectedTo": [
+          "living_room"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "living_room",
+        "type": "living_room",
+        "name": "客厅",
+        "position": "中部",
+        "connectedTo": [
+          "entrance",
+          "kitchen",
+          "balcony",
+          "storage",
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "medium"
+      },
+      {
+        "id": "balcony",
+        "type": "balcony",
+        "name": "阳台",
+        "position": "东侧中部",
+        "connectedTo": [
+          "living_room"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "storage",
+        "type": "storage",
+        "name": "储物间",
+        "position": "东南部中部",
+        "connectedTo": [
+          "corridor",
+          "living_room"
+        ],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "corridor",
+        "type": "corridor",
+        "name": "过道",
+        "position": "南部中部",
+        "connectedTo": [
+          "bedroom_b",
+          "bedroom_a",
+          "storage",
+          "living_room"
+        ],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "bedroom_a",
+        "type": "bedroom",
+        "name": "卧室A",
+        "position": "南部偏东",
+        "connectedTo": [
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "medium"
+      },
+      {
+        "id": "bedroom_b",
+        "type": "bedroom",
+        "name": "卧室B",
+        "position": "南部偏西",
+        "connectedTo": [
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "medium"
+      }
+    ],
+    "features": {
+      "northSouthVentilation": "unknown",
+      "dynamicStaticZoning": "good",
+      "kitchenDiningFlow": "good",
+      "bathroomPressure": "medium",
+      "lighting": "medium",
+      "storagePotential": "medium"
+    },
+    "pros": [
+      "餐客一体空间开阔",
+      "功能分区清晰明确",
+      "临近公共区域动线短",
+      "带有独立储物间"
+    ],
+    "cons": [
+      "卫生间无窗采光差",
+      "静区靠近公共区域易受干扰",
+      "部分小空间较为局促",
+      "无明确南北通透"
+    ],
+    "suitableFor": [
+      "刚需家庭",
+      "三口之家",
+      "首次置业人群"
+    ],
+    "unknowns": [
+      "实际建筑面积与标注是否一致",
+      "房屋楼层及高度信息",
+      "具体朝向细节",
+      "小区整体配套情况"
+    ],
+    "needsReview": [
+      "房间连接关系是否准确",
+      "采光判断是否符合实际",
+      "动静分区合理性"
+    ]
+  }
+]

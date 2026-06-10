@@ -1,0 +1,112 @@
+[
+  {
+    "id": "case_002",
+    "title": "真实户型02：三居一厅一卫带储物间",
+    "imagePath": "benchmark/images/case_002.jpg",
+    "layoutType": "3室1厅1卫",
+    "rooms": [
+      {
+        "id": "entrance",
+        "type": "entrance",
+        "name": "门厅",
+        "position": "西北侧入口",
+        "connectedTo": ["living", "bathroom"],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "living",
+        "type": "living_room",
+        "name": "客厅",
+        "position": "中部偏东",
+        "connectedTo": ["entrance", "kitchen", "bedroom_c", "bedroom_b", "corridor", "balcony"],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "kitchen",
+        "type": "kitchen",
+        "name": "厨房",
+        "position": "北侧偏东",
+        "connectedTo": ["living"],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_c",
+        "type": "bedroom",
+        "name": "卧室C",
+        "position": "北侧偏西",
+        "connectedTo": ["living"],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "bathroom",
+        "type": "bathroom",
+        "name": "卫生间",
+        "position": "西侧中部",
+        "connectedTo": ["entrance"],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "bedroom_b",
+        "type": "primary_bedroom",
+        "name": "卧室B",
+        "position": "南侧偏西",
+        "connectedTo": ["living"],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "corridor",
+        "type": "corridor",
+        "name": "过道",
+        "position": "南侧中部",
+        "connectedTo": ["living", "bedroom_a", "storage"],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "storage",
+        "type": "storage",
+        "name": "储物间",
+        "position": "东南侧偏中",
+        "connectedTo": ["corridor"],
+        "hasWindow": false,
+        "light": "weak"
+      },
+      {
+        "id": "bedroom_a",
+        "type": "bedroom",
+        "name": "卧室A",
+        "position": "南侧偏东",
+        "connectedTo": ["corridor"],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "balcony",
+        "type": "balcony",
+        "name": "阳台",
+        "position": "东侧",
+        "connectedTo": ["living"],
+        "hasWindow": true,
+        "light": "good"
+      }
+    ],
+    "features": {
+      "northSouthVentilation": false,
+      "dynamicStaticZoning": "medium",
+      "kitchenDiningFlow": "medium",
+      "bathroomPressure": "medium",
+      "lighting": "medium",
+      "storagePotential": "good"
+    },
+    "pros": ["客厅面积大", "厨房面积大", "储物间实用", "两间南向卧室", "阳台连接客厅"],
+    "cons": ["单卫压力", "卧室C采光弱", "客厅兼餐厅", "入户收纳弱"],
+    "suitableFor": ["三口之家", "年轻家庭", "重视收纳家庭"],
+    "notes": "根据 case_002.jpg 人工试标，用于验证 benchmark 流程。卧室C是否有外窗需要复核。"
+  }
+]

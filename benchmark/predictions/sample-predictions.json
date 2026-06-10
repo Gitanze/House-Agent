@@ -1,0 +1,86 @@
+[
+  {
+    "id": "case_001",
+    "layoutType": "3室2厅1卫",
+    "rooms": [
+      { "id": "entrance", "type": "entrance", "name": "玄关", "connectedTo": ["dining"], "hasWindow": false, "light": "weak" },
+      { "id": "dining", "type": "dining_room", "name": "餐厅", "connectedTo": ["entrance", "living", "kitchen"], "hasWindow": false, "light": "medium" },
+      { "id": "living", "type": "living_room", "name": "客厅", "connectedTo": ["dining", "balcony"], "hasWindow": true, "light": "good" },
+      { "id": "balcony", "type": "balcony", "name": "阳台", "connectedTo": ["living"], "hasWindow": true, "light": "good" },
+      { "id": "kitchen", "type": "kitchen", "name": "厨房", "connectedTo": ["dining"], "hasWindow": true, "light": "medium" },
+      { "id": "primary_bedroom", "type": "primary_bedroom", "name": "主卧", "connectedTo": ["corridor"], "hasWindow": true, "light": "good" },
+      { "id": "child_room", "type": "child_room", "name": "儿童房", "connectedTo": ["corridor"], "hasWindow": true, "light": "medium" },
+      { "id": "bedroom", "type": "bedroom", "name": "次卧", "connectedTo": ["corridor"], "hasWindow": true, "light": "medium" },
+      { "id": "bathroom", "type": "bathroom", "name": "卫生间", "connectedTo": ["corridor"], "hasWindow": false, "light": "weak" },
+      { "id": "corridor", "type": "corridor", "name": "走廊", "connectedTo": ["dining", "primary_bedroom", "child_room", "bedroom", "bathroom"], "hasWindow": false, "light": "weak" }
+    ],
+    "features": {
+      "northSouthVentilation": true,
+      "dynamicStaticZoning": "good",
+      "kitchenDiningFlow": "good",
+      "bathroomPressure": "medium",
+      "lighting": "good",
+      "storagePotential": "medium"
+    },
+    "pros": ["南北通透", "南向客厅", "餐厨动线顺", "动静分区清晰"],
+    "cons": ["单卫压力", "暗卫"],
+    "suitableFor": ["年轻家庭", "三口之家"],
+    "unknowns": []
+  },
+  {
+    "id": "case_002",
+    "layoutType": "2室1厅1卫",
+    "rooms": [
+      { "id": "entrance", "type": "entrance", "name": "玄关", "connectedTo": ["living"], "hasWindow": false, "light": "weak" },
+      { "id": "living", "type": "living_room", "name": "客厅", "connectedTo": ["entrance", "balcony", "kitchen", "primary_bedroom", "bedroom"], "hasWindow": true, "light": "medium" },
+      { "id": "balcony", "type": "balcony", "name": "阳台", "connectedTo": ["living"], "hasWindow": true, "light": "good" },
+      { "id": "kitchen", "type": "kitchen", "name": "厨房", "connectedTo": ["living"], "hasWindow": true, "light": "medium" },
+      { "id": "primary_bedroom", "type": "primary_bedroom", "name": "主卧", "connectedTo": ["living"], "hasWindow": true, "light": "good" },
+      { "id": "bedroom", "type": "bedroom", "name": "次卧", "connectedTo": ["living"], "hasWindow": true, "light": "medium" },
+      { "id": "bathroom", "type": "bathroom", "name": "卫生间", "connectedTo": ["living"], "hasWindow": false, "light": "weak" }
+    ],
+    "features": {
+      "northSouthVentilation": false,
+      "dynamicStaticZoning": "weak",
+      "kitchenDiningFlow": "medium",
+      "bathroomPressure": "low",
+      "lighting": "medium",
+      "storagePotential": "medium"
+    },
+    "pros": ["总价友好", "南向主卧", "阳台采光好"],
+    "cons": ["客厅尺度紧凑", "动静分区弱"],
+    "suitableFor": ["首次置业", "年轻情侣"],
+    "needsReview": ["厨房是否有直接采光需要人工复核"]
+  },
+  {
+    "id": "case_003",
+    "layoutType": "4室2厅2卫",
+    "rooms": [
+      { "id": "entrance", "type": "entrance", "name": "玄关", "connectedTo": ["dining"], "hasWindow": false, "light": "weak" },
+      { "id": "dining", "type": "dining_room", "name": "餐厅", "connectedTo": ["entrance", "living", "kitchen"], "hasWindow": false, "light": "medium" },
+      { "id": "living", "type": "living_room", "name": "客厅", "connectedTo": ["dining", "balcony"], "hasWindow": true, "light": "good" },
+      { "id": "balcony", "type": "balcony", "name": "阳台", "connectedTo": ["living"], "hasWindow": true, "light": "good" },
+      { "id": "kitchen", "type": "kitchen", "name": "厨房", "connectedTo": ["dining"], "hasWindow": true, "light": "medium" },
+      { "id": "primary_bedroom", "type": "primary_bedroom", "name": "主卧", "connectedTo": ["corridor", "primary_bathroom"], "hasWindow": true, "light": "good" },
+      { "id": "primary_bathroom", "type": "bathroom", "name": "主卫", "connectedTo": ["primary_bedroom"], "hasWindow": false, "light": "weak" },
+      { "id": "child_room", "type": "child_room", "name": "儿童房", "connectedTo": ["corridor"], "hasWindow": true, "light": "medium" },
+      { "id": "study", "type": "study", "name": "书房", "connectedTo": ["corridor"], "hasWindow": true, "light": "medium" },
+      { "id": "bedroom", "type": "bedroom", "name": "次卧", "connectedTo": ["corridor"], "hasWindow": true, "light": "good" },
+      { "id": "bathroom", "type": "bathroom", "name": "公卫", "connectedTo": ["corridor"], "hasWindow": false, "light": "weak" },
+      { "id": "corridor", "type": "corridor", "name": "走廊", "connectedTo": ["dining", "primary_bedroom", "child_room", "study", "bedroom", "bathroom"], "hasWindow": false, "light": "weak" },
+      { "id": "storage", "type": "storage", "name": "储物间", "connectedTo": ["corridor"], "hasWindow": false, "light": "weak" }
+    ],
+    "features": {
+      "northSouthVentilation": true,
+      "dynamicStaticZoning": "good",
+      "kitchenDiningFlow": "good",
+      "bathroomPressure": "low",
+      "lighting": "good",
+      "storagePotential": "good"
+    },
+    "pros": ["四房弹性", "双卫便利", "南向客厅", "主卧套房"],
+    "cons": ["走廊占用面积"],
+    "suitableFor": ["改善家庭", "二孩家庭"],
+    "unknowns": []
+  }
+]

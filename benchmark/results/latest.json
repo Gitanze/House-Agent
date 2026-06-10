@@ -1,0 +1,30 @@
+{
+  "summary": {
+    "cases": 1,
+    "overall": 0.6446111111111111,
+    "roomRecognition": 0.7999999999999999,
+    "spatialRelations": 0.7777777777777778,
+    "featureJudgment": 0.5,
+    "interpretation": 0.42777777777777776,
+    "hallucination": 0.45999999999999996
+  },
+  "results": [
+    {
+      "id": "case_001",
+      "title": "紧凑三居动静分离",
+      "scores": {
+        "roomRecognition": 0.7999999999999999,
+        "spatialRelations": 0.7777777777777778,
+        "featureJudgment": 0.5,
+        "interpretation": 0.42777777777777776,
+        "hallucination": 0.45999999999999996,
+        "overall": 0.6446111111111111
+      },
+      "diagnostics": [
+        "疑似多识别房间: balcony, unknown, bathroom",
+        "疑似编造连接: dining_room--unknown, bathroom--unknown",
+        "专业判断不一致: northSouthVentilation, bathroomPressure, storagePotential"
+      ]
+    }
+  ]
+}

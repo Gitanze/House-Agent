@@ -1,0 +1,206 @@
+[
+  {
+    "id": "case_005",
+    "layoutType": "5室2厅2卫",
+    "rooms": [
+      {
+        "id": "living",
+        "type": "living_room",
+        "name": "客厅",
+        "position": "南侧中部",
+        "connectedTo": [
+          "dining",
+          "bedroom_c",
+          "bedroom_d",
+          "bathroom_b"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "dining",
+        "type": "dining_room",
+        "name": "餐厅",
+        "position": "中部",
+        "connectedTo": [
+          "living",
+          "kitchen",
+          "corridor"
+        ],
+        "hasWindow": false,
+        "light": "medium"
+      },
+      {
+        "id": "kitchen",
+        "type": "kitchen",
+        "name": "厨房",
+        "position": "东北部",
+        "connectedTo": [
+          "dining",
+          "balcony",
+          "child_room"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "primary_bedroom",
+        "type": "primary_bedroom",
+        "name": "主卧",
+        "position": "西南部",
+        "connectedTo": [
+          "bathroom_a",
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_a",
+        "type": "bedroom",
+        "name": "次卧1",
+        "position": "西北部",
+        "connectedTo": [
+          "bathroom_a",
+          "corridor"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_b",
+        "type": "bedroom",
+        "name": "次卧2",
+        "position": "西部中部",
+        "connectedTo": [
+          "corridor",
+          "bathroom_a"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_c",
+        "type": "bedroom",
+        "name": "次卧3",
+        "position": "南部西部",
+        "connectedTo": [
+          "living",
+          "bathroom_b"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_d",
+        "type": "bedroom",
+        "name": "次卧4",
+        "position": "东部南部",
+        "connectedTo": [
+          "living",
+          "bathroom_b"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "child_room",
+        "type": "child_room",
+        "name": "儿童房",
+        "position": "东北部",
+        "connectedTo": [
+          "kitchen",
+          "balcony"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bathroom_a",
+        "type": "bathroom",
+        "name": "公卫",
+        "position": "西部中部",
+        "connectedTo": [
+          "primary_bedroom",
+          "bedroom_a",
+          "bedroom_b"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bathroom_b",
+        "type": "bathroom",
+        "name": "主卫",
+        "position": "东部中部",
+        "connectedTo": [
+          "bedroom_c",
+          "bedroom_d"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "corridor",
+        "type": "corridor",
+        "name": "走廊",
+        "position": "中部偏西",
+        "connectedTo": [
+          "primary_bedroom",
+          "bedroom_a",
+          "bedroom_b",
+          "dining"
+        ],
+        "hasWindow": false,
+        "light": "medium"
+      },
+      {
+        "id": "balcony",
+        "type": "balcony",
+        "name": "阳台",
+        "position": "南部顶部",
+        "connectedTo": [
+          "kitchen",
+          "child_room"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      }
+    ],
+    "features": {
+      "northSouthVentilation": true,
+      "dynamicStaticZoning": "good",
+      "kitchenDiningFlow": "good",
+      "bathroomPressure": "medium",
+      "lighting": "good",
+      "storagePotential": "medium"
+    },
+    "pros": [
+      "多卧室适配大家庭",
+      "客厅宽敞采光佳",
+      "双卫提升使用便利性",
+      "厨卫功能分区清晰"
+    ],
+    "cons": [
+      "走廊占用室内面积",
+      "餐厅无直接采光",
+      "部分房间动线需经走廊"
+    ],
+    "suitableFor": [
+      "多孩家庭",
+      "大家庭居住",
+      "多房间需求人群"
+    ],
+    "unknowns": [
+      "实际建筑面积",
+      "墙体及承重墙分布",
+      "阳台是否封闭",
+      "楼层总层数"
+    ],
+    "needsReview": [
+      "房间功能划分准确性",
+      "卫生间是否为明卫",
+      "走廊通行空间合理性"
+    ]
+  }
+]
