@@ -35,6 +35,10 @@ function matchMatrixCases(cases, input, limit = 3) {
   ].filter(Boolean).join(" ");
 
   return cases
+    .filter((item) =>
+      (!input.narrativeVoice || !item.narrativeVoice || item.narrativeVoice === input.narrativeVoice)
+      && (!input.contentFocus || !item.contentFocus || item.contentFocus === input.contentFocus)
+    )
     .map((item) => {
       const tags = [
         item.narrativeVoice,
