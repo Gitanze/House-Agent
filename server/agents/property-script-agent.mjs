@@ -576,7 +576,7 @@ export async function generatePropertyScript(jsonClient, rawInput) {
   }
   const matrixMode = isMatrixInput(input);
   const skillContext = matrixMode
-    ? loadContentMatrixSkill()
+    ? loadContentMatrixSkill({ input })
     : loadVoiceoverSkill(input.style, { input });
   const voiceoverFallback = fallbackVoiceover(input);
   let voiceoverResult = voiceoverFallback;
