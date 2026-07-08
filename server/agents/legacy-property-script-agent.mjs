@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { loadContentMatrixSkill } from "./content-matrix-skill-loader.mjs";
 import { loadVoiceoverSkill } from "./voiceover-skill-loader.mjs";
 
 const durationSchema = z.union([z.literal(60), z.literal(90)]);
@@ -19,28 +18,9 @@ const styleLabels = {
   playful: "搞笑抽象互动型"
 };
 
-const narrativeVoiceSchema = z.enum(["owner", "viewer", "abstract"]);
-const contentFocusSchema = z.enum(["full_home", "renovation", "core_space"]);
-
-const narrativeVoiceLabels = {
-  owner: "业主口吻",
-  viewer: "看房人口吻",
-  abstract: "抽象口吻"
-};
-
-const contentFocusLabels = {
-  full_home: "全屋讲解",
-  renovation: "改造/装修",
-  core_space: "核心空间"
-};
-
 const inputSchema = z.object({
   duration: durationSchema.default(60),
-  style: z.string().default("buyer_dilemma"),
-  scriptVariant: z.enum(["matrix", "legacy"]).optional(),
-  targetAudience: z.string().trim().default(""),
-  narrativeVoice: narrativeVoiceSchema.optional(),
-  contentFocus: contentFocusSchema.optional(),
+  style: styleSchema.default("buyer_dilemma"),
   floorplanAnalysis: z.object({
     layoutType: z.string().optional(),
     area: z.string().optional(),
@@ -78,33 +58,6 @@ const inputSchema = z.object({
     scenes: z.array(z.unknown()).default([])
   }).passthrough().optional()
 });
-
-function isMatrixInput(input) {
-  return input.scriptVariant === "matrix"
-    || Boolean(input.targetAudience)
-    || Boolean(input.narrativeVoice)
-    || Boolean(input.contentFocus);
-}
-
-function matrixInput(input) {
-  return {
-    targetAudience: input.targetAudience || "当前房源的真实潜在买家",
-    narrativeVoice: input.narrativeVoice || "viewer",
-    contentFocus: input.contentFocus || "full_home"
-  };
-}
-
-function scriptStyleKey(input) {
-  if (!isMatrixInput(input)) return input.style;
-  const matrix = matrixInput(input);
-  return `matrix_${matrix.narrativeVoice}_${matrix.contentFocus}`;
-}
-
-function scriptStyleLabel(input) {
-  if (!isMatrixInput(input)) return styleLabels[input.style];
-  const matrix = matrixInput(input);
-  return `${matrix.targetAudience} × ${narrativeVoiceLabels[matrix.narrativeVoice]} × ${contentFocusLabels[matrix.contentFocus]}`;
-}
 
 const unknownFactValues = new Set(["", "待确认", "unknown", "未知", "不确定"]);
 const chineseNumbers = {
@@ -209,12 +162,6 @@ export function buildPropertyUnderstanding(input) {
       transitInfo: input.property.transitInfo,
       amenities: input.property.amenities
     },
-    scriptMatrix: isMatrixInput(input) ? {
-      targetAudience: matrixInput(input).targetAudience,
-      narrativeVoice: narrativeVoiceLabels[matrixInput(input).narrativeVoice],
-      contentFocus: contentFocusLabels[matrixInput(input).contentFocus],
-      rule: "目标客户决定关注点，口吻决定叙事身份，重点决定结构，人工补充亮点决定更细的展开方向。"
-    } : null,
     layoutUnderstanding: {
       roomComposition: rooms.map((room) => room.name || room.type),
       roomRelationships: rooms.map((room) => ({
@@ -316,24 +263,17 @@ function fallbackVoiceover(input) {
   const rooms = roomNames(input);
   const area = input.floorplanAnalysis.area || input.property.buildingArea || "待确认";
   const { authoritativeLayout } = resolveScriptFacts(input);
-  const matrix = matrixInput(input);
   const highlightLines = input.manualHighlights.length
     ? input.manualHighlights.map((item) => `${item}，会直接影响每天住在这里的感受。`)
     : ["房间关系和真实使用感，才是看房时真正值得留意的部分。"];
   return {
-    storyPositioning: isMatrixInput(input)
-      ? `${scriptStyleLabel(input)}：围绕人工亮点组织一条正向短视频口播`
-      : `${styleLabels[input.style]}：从真实看房取舍切入`,
+    storyPositioning: `${styleLabels[input.style]}：从真实看房取舍切入`,
     voiceover: [
-      isMatrixInput(input)
-        ? `这条内容，先说给${matrix.targetAudience}听。`
-        : "这套房，我没有急着先下结论。",
+      "这套房，我没有急着先下结论。",
       `建筑面积${area}${authoritativeLayout ? `，人工确认为${authoritativeLayout}` : ""}。`,
       `图上能确认的空间有${rooms.join("、") || "主要功能空间"}。`,
       "",
-      isMatrixInput(input)
-        ? `这次用${narrativeVoiceLabels[matrix.narrativeVoice]}，重点讲${contentFocusLabels[matrix.contentFocus]}。`
-        : "真正需要看的，",
+      "真正需要看的，",
       "是每天回家以后，",
       "这些空间顺不顺手。",
       ...highlightLines,
@@ -431,24 +371,6 @@ export function buildVoiceoverMessages(input, skillContext = loadVoiceoverSkill(
   const lengthRule = input.duration === 90
     ? "正文430—580个汉字，通常26—38行"
     : "正文280—380个汉字，通常18—26行";
-  if (isMatrixInput(input)) {
-    const matrix = matrixInput(input);
-    return [
-      {
-        role: "system",
-        content:
-          `你正在执行 residential-content-matrix-voiceover。以下是本次运行时从内容矩阵 Skill Markdown 动态加载的唯一写作参考：\n\n<skill-reference>\n${skillContext.promptReference}\n</skill-reference>\n\n最高优先级覆盖规则：本次组合为“${matrix.targetAudience} × ${narrativeVoiceLabels[matrix.narrativeVoice]} × ${contentFocusLabels[matrix.contentFocus]}”。先建立完整房源认知，再生成一条脚本策略，最后写完整口播。房源事实严格按以下优先级使用：人工复核与人工填写户型 > 加入人工补充后的描述 > 对应房间的实景识别细节。人工补充亮点必须全部进入口播，并作为更细讲解侧重展开；不得集中罗列，不得原样硬贴。抽象口吻可以极致、强梗、夸张和拟人，但只能夸张表达，不能虚构不存在的房间、学校、改造、配套或房源事实。全程只写正向信息，不说房子的不好。authoritativeLayout 是唯一允许写入口播的整套厅室数量；layoutStatus 为 unconfirmed 时，正文禁止出现任何具体“几室几厅”表述。实景照片只作为对应房间的可选细节点缀，每个房间最多使用1个，不得串房。保持真实漫游顺序，默认从入口进入公共空间。${lengthRule}。输出 JSON。`
-      },
-      {
-        role: "user",
-        content: `整理后的房源认知：\n${JSON.stringify(buildPropertyUnderstanding(input), null, 2)}\n\n本次内容矩阵：\n${JSON.stringify({
-          targetAudience: matrix.targetAudience,
-          narrativeVoice: narrativeVoiceLabels[matrix.narrativeVoice],
-          contentFocus: contentFocusLabels[matrix.contentFocus]
-        }, null, 2)}\n\n以下人工亮点的事实含义必须全部保留，并用来决定更细的讲解侧重：\n${input.manualHighlights.length ? input.manualHighlights.map((item) => `- ${item}`).join("\n") : "- 无"}${input.baseScript ? `\n\n需要二次润色的原方案：\n${JSON.stringify({ storyPositioning: input.baseScript.storyPositioning, voiceover: input.baseScript.voiceover }, null, 2)}\n\n用户润色方向：${input.refinementInstruction}\n保持所有已确认房源事实与原有时长、组合策略，在此基础上完成明显且连贯的改写。` : ""}\n\n输出 {"storyPositioning":"一句话说明目标客户、口吻、重点和核心命题","voiceover":"逻辑连续、一行一句的可录音正文","highlightCoverage":["逐项原样返回已自然融入的人工亮点，仅用于校验，不属于口播"],"pendingConfirmations":[]}。`
-      }
-    ];
-  }
   return [
     {
       role: "system",
@@ -500,10 +422,7 @@ export async function generatePropertyScript(jsonClient, rawInput) {
   if (input.baseScript && !input.refinementInstruction) {
     throw new Error("请填写二次润色方向。");
   }
-  const matrixMode = isMatrixInput(input);
-  const skillContext = matrixMode
-    ? loadContentMatrixSkill()
-    : loadVoiceoverSkill(input.style, { input });
+  const skillContext = loadVoiceoverSkill(input.style, { input });
   const voiceoverFallback = fallbackVoiceover(input);
   let voiceoverResult = voiceoverFallback;
   let provider = "fallback";
@@ -588,14 +507,8 @@ export async function generatePropertyScript(jsonClient, rawInput) {
     schemaVersion: "property-video-script/v1",
     provider,
     duration: input.duration,
-    style: scriptStyleKey(input),
-    styleLabel: scriptStyleLabel(input),
-    scriptVariant: matrixMode ? "matrix" : "legacy",
-    targetAudience: matrixMode ? matrixInput(input).targetAudience : undefined,
-    narrativeVoice: matrixMode ? matrixInput(input).narrativeVoice : undefined,
-    narrativeVoiceLabel: matrixMode ? narrativeVoiceLabels[matrixInput(input).narrativeVoice] : undefined,
-    contentFocus: matrixMode ? matrixInput(input).contentFocus : undefined,
-    contentFocusLabel: matrixMode ? contentFocusLabels[matrixInput(input).contentFocus] : undefined,
+    style: input.style,
+    styleLabel: styleLabels[input.style],
     storyPositioning: voiceoverResult.storyPositioning,
     voiceover: voiceoverResult.voiceover,
     generationTrace: {

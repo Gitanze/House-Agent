@@ -213,6 +213,12 @@ type PropertyScriptResult = {
   duration: 60 | 90;
   style: string;
   styleLabel: string;
+  scriptVariant?: "matrix" | "legacy";
+  targetAudience?: string;
+  narrativeVoice?: "owner" | "viewer" | "abstract";
+  narrativeVoiceLabel?: string;
+  contentFocus?: "full_home" | "renovation" | "core_space";
+  contentFocusLabel?: string;
   storyPositioning: string;
   voiceover: string;
   pendingConfirmations: string[];
@@ -353,6 +359,7 @@ function nextRoomId(rooms: Room[]) {
 
 export function App() {
   const [mode, setMode] = useState<Mode>("brief");
+  const [annotationSubMode, setAnnotationSubMode] = useState<"labels" | "legacyScript">("labels");
   const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
   const [propertyArea, setPropertyArea] = useState("");
   const [propertyFacts, setPropertyFacts] = useState<PropertyFacts>({
@@ -971,6 +978,11 @@ export function App() {
           />
         ) : (
           <AnnotationMode
+            subMode={annotationSubMode}
+            onSubModeChange={setAnnotationSubMode}
+            records={propertyRecords}
+            activeRecord={activeRecord}
+            onOpenRecord={openPropertyRecord}
             images={benchmarkImages}
             selectedCase={selectedCase}
             familyType={familyType}
@@ -1355,6 +1367,7 @@ function RoomVisualPanel(props: {
 }
 
 function PropertyHighlightAgentPanel(props: {
+  variant?: "matrix" | "legacy";
   recognized: RecognizedFloorplan;
   propertyFacts: PropertyFacts;
   enrichedDescription: string;
@@ -1366,6 +1379,9 @@ function PropertyHighlightAgentPanel(props: {
 }) {
   const [duration, setDuration] = useState<60 | 90>(60);
   const [style, setStyle] = useState("buyer_dilemma");
+  const [targetAudience, setTargetAudience] = useState("三口之家");
+  const [narrativeVoice, setNarrativeVoice] = useState<"owner" | "viewer" | "abstract">("viewer");
+  const [contentFocus, setContentFocus] = useState<"full_home" | "renovation" | "core_space">("full_home");
   const [result, setResult] = useState<PropertyScriptResult | null>(null);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -1391,12 +1407,18 @@ function PropertyHighlightAgentPanel(props: {
     setResult(null);
     setStatus("正在生成故事线旁白，并按户型真实动线编排镜头...");
     try {
-      const response = await fetch("/api/script-agent/generate", {
+      const isLegacy = props.variant === "legacy";
+      const response = await fetch(isLegacy ? "/api/script-agent/legacy/generate" : "/api/script-agent/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           duration,
-          style,
+          ...(isLegacy ? { style, scriptVariant: "legacy" } : {
+            scriptVariant: "matrix",
+            targetAudience,
+            narrativeVoice,
+            contentFocus
+          }),
           floorplanAnalysis: {
             schemaVersion: "floorplan-analysis/v1",
             ...props.recognized
@@ -1576,19 +1598,44 @@ function PropertyHighlightAgentPanel(props: {
   const parentScript = activeSavedScript?.derivedFromScriptId
     ? props.savedScripts.find((script) => script.id === activeSavedScript.derivedFromScriptId)
     : null;
+  const isLegacy = props.variant === "legacy";
 
   return (
-    <section className="highlight-agent-panel" aria-label="房源视频脚本生成 Agent">
+    <section className="highlight-agent-panel" aria-label={isLegacy ? "稳定版房源视频脚本生成 Agent" : "内容矩阵房源视频脚本生成 Agent"}>
       <div className="highlight-agent-head">
         <div>
-          <p className="eyebrow">Agent 2 · Voiceover × Shotlist</p>
-          <h2>房源视频脚本生成 Agent</h2>
-          <p>结合平面图识别结果，先生成故事线旁白，再按真实空间动线生成可执行运镜。</p>
+          <p className="eyebrow">{isLegacy ? "Legacy Voiceover × Shotlist" : "Content Matrix Voiceover × Shotlist"}</p>
+          <h2>{isLegacy ? "稳定版房源视频脚本生成 Agent" : "内容矩阵脚本生成 Agent"}</h2>
+          <p>{isLegacy ? "保留当前稳定版 skill 与案例库，适合需要回退或对照时使用。" : "按目标客户、口吻和讲解重点交叉生成，人工亮点会决定更细的展开方向。"}</p>
         </div>
         <span className="agent-number">02</span>
       </div>
 
       <div className="script-controls">
+        {!isLegacy && (
+          <>
+            <label className="field">
+              <span>目标客户</span>
+              <input value={targetAudience} onChange={(event) => setTargetAudience(event.target.value)} placeholder="例如：三口之家" />
+            </label>
+            <label className="field">
+              <span>叙事口吻</span>
+              <select value={narrativeVoice} onChange={(event) => setNarrativeVoice(event.target.value as "owner" | "viewer" | "abstract")}>
+                <option value="owner">业主口吻</option>
+                <option value="viewer">看房人口吻</option>
+                <option value="abstract">抽象口吻</option>
+              </select>
+            </label>
+            <label className="field">
+              <span>讲解重点</span>
+              <select value={contentFocus} onChange={(event) => setContentFocus(event.target.value as "full_home" | "renovation" | "core_space")}>
+                <option value="full_home">全屋讲解</option>
+                <option value="renovation">改造/装修</option>
+                <option value="core_space">核心空间</option>
+              </select>
+            </label>
+          </>
+        )}
         <label className="field">
           <span>成片时长</span>
           <select value={duration} onChange={(event) => setDuration(Number(event.target.value) as 60 | 90)}>
@@ -1596,16 +1643,18 @@ function PropertyHighlightAgentPanel(props: {
             <option value={90}>约 90 秒</option>
           </select>
         </label>
-        <label className="field">
-          <span>故事风格模板</span>
-          <select value={style} onChange={(event) => setStyle(event.target.value)}>
-            <option value="local_highlight">局部亮点型</option>
-            <option value="renovation_ready">装修省心型</option>
-            <option value="owner_story">业主个人叙述型</option>
-            <option value="buyer_dilemma">看房人纠结型</option>
-            <option value="playful">搞笑抽象互动型</option>
-          </select>
-        </label>
+        {isLegacy && (
+          <label className="field">
+            <span>故事风格模板</span>
+            <select value={style} onChange={(event) => setStyle(event.target.value)}>
+              <option value="local_highlight">局部亮点型</option>
+              <option value="renovation_ready">装修省心型</option>
+              <option value="owner_story">业主个人叙述型</option>
+              <option value="buyer_dilemma">看房人纠结型</option>
+              <option value="playful">搞笑抽象互动型</option>
+            </select>
+          </label>
+        )}
       </div>
 
       <button className="primary-action" type="button" disabled={isRunning} onClick={startAgent}>
@@ -1782,7 +1831,84 @@ function PropertyHighlightAgentPanel(props: {
   );
 }
 
+function BenchmarkSubModeSwitch(props: {
+  subMode: "labels" | "legacyScript";
+  onSubModeChange: (mode: "labels" | "legacyScript") => void;
+}) {
+  return (
+    <div className="benchmark-submode-switch" aria-label="Benchmark 子页切换">
+      <button type="button" className={props.subMode === "labels" ? "active" : ""} onClick={() => props.onSubModeChange("labels")}>
+        标注台
+      </button>
+      <button type="button" className={props.subMode === "legacyScript" ? "active" : ""} onClick={() => props.onSubModeChange("legacyScript")}>
+        稳定版脚本
+      </button>
+    </div>
+  );
+}
+
+function StableLegacyScriptMode(props: {
+  records: PropertyRecordSummary[];
+  activeRecord: PropertyRecord | null;
+  onOpenRecord: (id: string) => void;
+  subMode: "labels" | "legacyScript";
+  onSubModeChange: (mode: "labels" | "legacyScript") => void;
+}) {
+  const recognized = props.activeRecord?.analysis?.recognized;
+  return (
+    <>
+      <aside className="input-panel annotator-panel">
+        <BenchmarkSubModeSwitch subMode={props.subMode} onSubModeChange={props.onSubModeChange} />
+        <div className="case-list">
+          <h2>选择本地户型档案</h2>
+          <div className="case-buttons">
+            {props.records.map((record) => (
+              <button
+                key={record.id}
+                type="button"
+                className={props.activeRecord?.id === record.id ? "active" : ""}
+                onClick={() => props.onOpenRecord(record.id)}
+              >
+                <span>{record.title}</span>
+                <small>{record.layoutType || "户型待确认"} · {record.area || "面积待确认"}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+        {!props.records.length && <div className="empty-case">先在“讲解生成”页完成一次户型识别，本地档案会出现在这里。</div>}
+      </aside>
+
+      <section className="output-panel annotator-output">
+        {props.activeRecord && recognized ? (
+          <PropertyHighlightAgentPanel
+            variant="legacy"
+            recognized={recognized}
+            propertyFacts={props.activeRecord.propertyFacts}
+            enrichedDescription={props.activeRecord.analysis?.enrichedDescription ?? props.activeRecord.analysis?.objectiveDescription ?? ""}
+            propertyRecordId={props.activeRecord.id}
+            savedScripts={props.activeRecord.scripts ?? []}
+            factConfirmations={props.activeRecord.factConfirmations ?? []}
+            onRecordRefresh={() => props.onOpenRecord(props.activeRecord!.id)}
+            manualHighlightsText={(props.activeRecord.manualHighlights ?? []).join("\n")}
+          />
+        ) : (
+          <div className="empty-result">
+            <Database size={36} />
+            <h2>稳定版脚本入口</h2>
+            <p>选择左侧已保存户型档案后，可以继续使用旧版稳定 Agent 生成脚本。</p>
+          </div>
+        )}
+      </section>
+    </>
+  );
+}
+
 function AnnotationMode(props: {
+  subMode: "labels" | "legacyScript";
+  onSubModeChange: (mode: "labels" | "legacyScript") => void;
+  records: PropertyRecordSummary[];
+  activeRecord: PropertyRecord | null;
+  onOpenRecord: (id: string) => void;
   images: BenchmarkImage[];
   selectedCase: BenchmarkImage | null;
   familyType: string;
@@ -1814,9 +1940,22 @@ function AnnotationMode(props: {
   onSave: () => void;
   onResumeReview: (action: "edit" | "approve") => void;
 }) {
+  if (props.subMode === "legacyScript") {
+    return (
+      <StableLegacyScriptMode
+        records={props.records}
+        activeRecord={props.activeRecord}
+        onOpenRecord={props.onOpenRecord}
+        subMode={props.subMode}
+        onSubModeChange={props.onSubModeChange}
+      />
+    );
+  }
+
   return (
     <>
       <aside className="input-panel annotator-panel">
+        <BenchmarkSubModeSwitch subMode={props.subMode} onSubModeChange={props.onSubModeChange} />
         <div className="case-list">
           <h2>选择 case</h2>
           <div className="case-buttons">

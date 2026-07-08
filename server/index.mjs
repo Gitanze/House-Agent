@@ -20,6 +20,7 @@ import {
   buildEnrichedDescriptionMessages,
   buildObjectiveDescriptionMessages
 } from "./agents/property-description-content.mjs";
+import { generatePropertyScript as generateLegacyPropertyScript } from "./agents/legacy-property-script-agent.mjs";
 import { generatePropertyScript } from "./agents/property-script-agent.mjs";
 import { DeepseekJsonClient } from "./providers/deepseek-json-client.mjs";
 import { ManualCaseLibrary } from "./providers/manual-case-library.mjs";
@@ -1389,6 +1390,28 @@ app.post("/api/script-agent/generate", async (req, res) => {
   }
 });
 
+app.post("/api/script-agent/legacy/generate", async (req, res) => {
+  try {
+    const generated = await generateLegacyPropertyScript(highlightJsonClient, {
+      ...req.body,
+      scriptVariant: "legacy"
+    });
+    const result = { ...generated, scriptVariant: "legacy" };
+    const savedScript = req.body?.propertyRecordId
+      ? propertyRecordStore.addScript(req.body.propertyRecordId, result)
+      : null;
+    res.json({
+      ...result,
+      ...(savedScript ? { scriptId: savedScript.id, scriptName: savedScript.name } : {})
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({
+      error: error.message || "稳定版房源脚本生成失败。"
+    });
+  }
+});
+
 app.post("/api/property-records/:recordId/scripts/:scriptId/refine", async (req, res) => {
   try {
     const instruction = String(req.body?.instruction || "").trim();
@@ -1401,9 +1424,25 @@ app.post("/api/property-records/:recordId/scripts/:scriptId/refine", async (req,
       return res.status(503).json({ error: "DeepSeek 尚未配置，请检查 DEEPSEEK_API_KEY 后重启服务。" });
     }
 
-    const result = await generatePropertyScript(highlightJsonClient, {
+    const legacyStyleKeys = new Set([
+      "local_highlight",
+      "renovation_ready",
+      "owner_story",
+      "buyer_dilemma",
+      "playful"
+    ]);
+    const isLegacyScript = source.result.scriptVariant === "legacy"
+      || (!source.result.scriptVariant && legacyStyleKeys.has(source.result.style));
+    const scriptGenerator = isLegacyScript
+      ? generateLegacyPropertyScript
+      : generatePropertyScript;
+    const generated = await scriptGenerator(highlightJsonClient, {
       duration: source.result.duration,
       style: source.result.style,
+      scriptVariant: source.result.scriptVariant,
+      targetAudience: source.result.targetAudience,
+      narrativeVoice: source.result.narrativeVoice,
+      contentFocus: source.result.contentFocus,
       floorplanAnalysis: record.analysis?.recognized || {},
       property: record.propertyFacts || {},
       enrichedDescription: record.analysis?.enrichedDescription
@@ -1415,6 +1454,9 @@ app.post("/api/property-records/:recordId/scripts/:scriptId/refine", async (req,
       requireModel: true,
       baseScript: source.result
     });
+    const result = isLegacyScript
+      ? { ...generated, scriptVariant: "legacy" }
+      : generated;
     const saved = propertyRecordStore.addScript(req.params.recordId, result, {
       derivedFromScriptId: source.id,
       refinementInstruction: instruction

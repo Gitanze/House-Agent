@@ -526,5 +526,132 @@
         }
       }
     ]
+  },
+  {
+    "caseId": "e88ec852-24f6-45cc-b91d-f2e129b45878",
+    "title": "方案2-看房人纠结型-60秒",
+    "style": "buyer_dilemma",
+    "styleLabel": "看房人纠结型",
+    "duration": 60,
+    "applicableTags": [
+      "2室1厅1卫1书房或3室1厅"
+    ],
+    "highlightTags": [
+      "动静分区",
+      "书房"
+    ],
+    "notes": "开头自然，有口语化表达",
+    "layoutType": "2室1厅1卫1书房",
+    "sourceRecordId": "5fb3925a-be59-4c9e-9ca0-b6191b955a82",
+    "sourceScriptId": "66f57328-4d0b-4035-b9f5-2232125cd0ab",
+    "addedAt": "2026-07-08T07:32:26.591Z",
+    "storyPositioning": "看房人发现一套格局喜欢的房子，但唯一的卫生间让人纠结，正向选择取舍",
+    "voiceover": "最近看了不少房子。\n这套让我有点心动。\n南向的客厅，阳光能洒满整个沙发。\n阳台虽然不大，但摆把椅子就够了。\n厨房朝北，做饭时很凉快。\n两间卧室都挺方正。\n不过最吸引我的，是那个独立的书房。\n东向的窗户，早上能晒到太阳。\n在这工作，应该不会再被客厅的电视影响了。\n但问题来了——\n全屋只有一个卫生间。\n早上如果两个人同时起床，就要错开时间。\n对现在的我俩来说，其实还好。\n我早起，她喜欢赖床。\n但万一以后有孩子……\n或者父母偶尔来住……\n那就会有点紧张。\n可看过的其他几套，虽然有两卫，\n却要么没有书房，要么客厅朝北。\n所以现在就卡在这里：\n是选这套格局舒服但只有一个卫生间，\n还是继续找两卫但可能牺牲阳光和书房的房子？\n如果是你，会怎么选？",
+    "scenes": [
+      {
+        "sceneNumber": 1,
+        "durationSeconds": 4,
+        "roomId": "living_room",
+        "space": "客厅",
+        "storyVoiceover": "最近看了不少房子。\n这套让我有点心动。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从走廊门进入，缓慢前推至沙发区，展示南向阳光",
+          "focus": "空间关系与采光",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 2,
+        "durationSeconds": 9,
+        "roomId": "balcony",
+        "space": "阳台",
+        "storyVoiceover": "南向的客厅，阳光能洒满整个沙发。\n阳台虽然不大，但摆把椅子就够了。\n厨房朝北，做饭时很凉快。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从客厅门走出，平移展示阳台宽度，停留于椅子位置",
+          "focus": "空间大小",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 3,
+        "durationSeconds": 8,
+        "roomId": "kitchen",
+        "space": "厨房",
+        "storyVoiceover": "两间卧室都挺方正。\n不过最吸引我的，是那个独立的书房。\n东向的窗户，早上能晒到太阳。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从过道门进入，侧移展示北向窗户和操作台",
+          "focus": "采光与布局",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 4,
+        "durationSeconds": 7,
+        "roomId": "bedroom_a",
+        "space": "卧室A",
+        "storyVoiceover": "在这工作，应该不会再被客厅的电视影响了。\n但问题来了——\n全屋只有一个卫生间。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从过道门进入，推近至北向窗户，展示方正空间",
+          "focus": "方正空间",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 5,
+        "durationSeconds": 9,
+        "roomId": "bedroom_b",
+        "space": "卧室B",
+        "storyVoiceover": "早上如果两个人同时起床，就要错开时间。\n对现在的我俩来说，其实还好。\n我早起，她喜欢赖床。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从过道门进入，缓移展示南向采光及整体方正感",
+          "focus": "方正空间与采光",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 6,
+        "durationSeconds": 6,
+        "roomId": "study",
+        "space": "书房",
+        "storyVoiceover": "但万一以后有孩子……\n或者父母偶尔来住……\n那就会有点紧张。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从过道门进入，转向东向窗户，强调阳光洒落",
+          "focus": "窗户与书房功能",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 7,
+        "durationSeconds": 8,
+        "roomId": "bathroom",
+        "space": "卫生间",
+        "storyVoiceover": "可看过的其他几套，虽然有两卫，\n却要么没有书房，要么客厅朝北。\n所以现在就卡在这里：",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从书房门进入，依次展示洗手台、马桶和淋浴区",
+          "focus": "空间大小与布局",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 8,
+        "durationSeconds": 9,
+        "roomId": "corridor",
+        "space": "过道",
+        "storyVoiceover": "是选这套格局舒服但只有一个卫生间，\n还是继续找两卫但可能牺牲阳光和书房的房子？\n如果是你，会怎么选？",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从走廊一端缓步后拉，展示两侧门洞和尽头",
+          "focus": "动线与连接性",
+          "note": ""
+        }
+      }
+    ]
   }
 ]
