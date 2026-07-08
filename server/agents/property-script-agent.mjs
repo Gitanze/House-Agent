@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 import { loadContentMatrixSkill } from "./content-matrix-skill-loader.mjs";
 import { loadVoiceoverSkill } from "./voiceover-skill-loader.mjs";
 
@@ -41,6 +41,7 @@ const inputSchema = z.object({
   targetAudience: z.string().trim().default(""),
   narrativeVoice: narrativeVoiceSchema.optional(),
   contentFocus: contentFocusSchema.optional(),
+  scriptDirection: z.string().trim().default(""),
   floorplanAnalysis: z.object({
     layoutType: z.string().optional(),
     area: z.string().optional(),
@@ -236,6 +237,7 @@ export function buildPropertyUnderstanding(input) {
       targetAudience: matrixInput(input).targetAudience,
       narrativeVoice: narrativeVoiceLabels[matrixInput(input).narrativeVoice],
       contentFocus: contentFocusLabels[matrixInput(input).contentFocus],
+      scriptDirection: input.scriptDirection || "未填写",
       rule: "目标客户决定关注点，口吻决定叙事身份，重点决定结构，人工补充亮点决定更细的展开方向。"
     } : null,
     layoutUnderstanding: {
@@ -450,7 +452,10 @@ function normalizeIntegratedScenes(input, candidateScenes, storyVoiceover) {
   });
 }
 
-export function buildVoiceoverMessages(input, skillContext = loadVoiceoverSkill(input.style)) {
+export function buildVoiceoverMessages(input, skillContext = null) {
+  const activeSkillContext = skillContext || (isMatrixInput(input)
+    ? loadContentMatrixSkill({ input })
+    : loadVoiceoverSkill(input.style));
   const lengthRule = input.duration === 90
     ? "正文430—580个汉字，通常26—38行"
     : "正文280—380个汉字，通常18—26行";
@@ -460,15 +465,16 @@ export function buildVoiceoverMessages(input, skillContext = loadVoiceoverSkill(
       {
         role: "system",
         content:
-          `你正在执行 residential-content-matrix-voiceover。以下是本次运行时从内容矩阵 Skill Markdown 动态加载的唯一写作参考：\n\n<skill-reference>\n${skillContext.promptReference}\n</skill-reference>\n\n最高优先级覆盖规则：本次组合为“${matrix.targetAudience} × ${narrativeVoiceLabels[matrix.narrativeVoice]} × ${contentFocusLabels[matrix.contentFocus]}”。\n\n本次叙事口吻硬约束：\n${narrativeVoiceContract(matrix.narrativeVoice)}\n\n先建立完整房源认知，再生成一条脚本策略，最后写完整口播。房源事实严格按以下优先级使用：人工复核与人工填写户型 > 加入人工补充后的描述 > 对应房间的实景识别细节。人工补充亮点必须全部进入口播，并作为更细讲解侧重展开；不得集中罗列，不得原样硬贴。抽象口吻可以极致、强梗、夸张和拟人，但只能夸张表达，不能虚构不存在的房间、学校、改造、配套或房源事实。全程只写正向信息，不说房子的不好。authoritativeLayout 是唯一允许写入口播的整套厅室数量；layoutStatus 为 unconfirmed 时，正文禁止出现任何具体“几室几厅”表述。实景照片只作为对应房间的可选细节点缀，每个房间最多使用1个，不得串房。保持真实漫游顺序，默认从入口进入公共空间。${lengthRule}。输出 JSON。`
+          `你正在执行 residential-content-matrix-voiceover。以下是本次运行时从内容矩阵 Skill Markdown 动态加载的唯一写作参考：\n\n<skill-reference>\n${activeSkillContext.promptReference}\n</skill-reference>\n\n最高优先级覆盖规则：本次组合为“${matrix.targetAudience} × ${narrativeVoiceLabels[matrix.narrativeVoice]} × ${contentFocusLabels[matrix.contentFocus]}”。\n\n本次叙事口吻硬约束：\n${narrativeVoiceContract(matrix.narrativeVoice)}\n\n先建立完整房源认知，再生成一条脚本策略，最后写完整口播。房源事实严格按以下优先级使用：人工复核与人工填写户型 > 加入人工补充后的描述 > 对应房间的实景识别细节。人工补充亮点必须全部进入口播，并作为更细讲解侧重展开；不得集中罗列，不得原样硬贴。抽象口吻可以极致、强梗、夸张和拟人，但只能夸张表达，不能虚构不存在的房间、学校、改造、配套或房源事实。全程只写正向信息，不说房子的不好。authoritativeLayout 是唯一允许写入口播的整套厅室数量；layoutStatus 为 unconfirmed 时，正文禁止出现任何具体“几室几厅”表述。实景照片只作为对应房间的可选细节点缀，每个房间最多使用1个，不得串房。保持真实漫游顺序，默认从入口进入公共空间。${lengthRule}。输出 JSON。`
       },
       {
         role: "user",
         content: `整理后的房源认知：\n${JSON.stringify(buildPropertyUnderstanding(input), null, 2)}\n\n本次内容矩阵：\n${JSON.stringify({
           targetAudience: matrix.targetAudience,
           narrativeVoice: narrativeVoiceLabels[matrix.narrativeVoice],
-          contentFocus: contentFocusLabels[matrix.contentFocus]
-        }, null, 2)}\n\n以下人工亮点的事实含义必须全部保留，并用来决定更细的讲解侧重：\n${input.manualHighlights.length ? input.manualHighlights.map((item) => `- ${item}`).join("\n") : "- 无"}${input.baseScript ? `\n\n需要二次润色的原方案：\n${JSON.stringify({ storyPositioning: input.baseScript.storyPositioning, voiceover: input.baseScript.voiceover }, null, 2)}\n\n用户润色方向：${input.refinementInstruction}\n保持所有已确认房源事实与原有时长、组合策略，在此基础上完成明显且连贯的改写。` : ""}\n\n输出 {"storyPositioning":"一句话说明目标客户、口吻、重点和核心命题","voiceover":"逻辑连续、一行一句的可录音正文","highlightCoverage":["逐项原样返回已自然融入的人工亮点，仅用于校验，不属于口播"],"pendingConfirmations":[]}。`
+          contentFocus: contentFocusLabels[matrix.contentFocus],
+          scriptDirection: input.scriptDirection || "未填写"
+        }, null, 2)}\n\n用户本条脚本希望侧重讲解的部分（可为空）：\n${input.scriptDirection ? input.scriptDirection : "未填写。请按内容矩阵和人工亮点自然生成。"}\n\n以下人工亮点的事实含义必须全部保留，并用来决定更细的讲解侧重：\n${input.manualHighlights.length ? input.manualHighlights.map((item) => `- ${item}`).join("\n") : "- 无"}${input.baseScript ? `\n\n需要二次润色的原方案：\n${JSON.stringify({ storyPositioning: input.baseScript.storyPositioning, voiceover: input.baseScript.voiceover }, null, 2)}\n\n用户润色方向：${input.refinementInstruction}\n保持所有已确认房源事实与原有时长、组合策略，在此基础上完成明显且连贯的改写。` : ""}\n\n输出 {"storyPositioning":"一句话说明目标客户、口吻、重点和核心命题","voiceover":"逻辑连续、一行一句的可录音正文","highlightCoverage":["逐项原样返回已自然融入的人工亮点，仅用于校验，不属于口播"],"pendingConfirmations":[]}。`
       }
     ];
   }
@@ -476,7 +482,7 @@ export function buildVoiceoverMessages(input, skillContext = loadVoiceoverSkill(
     {
       role: "system",
       content:
-        `你正在执行 residential-story-voiceover。以下是本次运行时从 Skill Markdown 动态加载的唯一写作参考：\n\n<skill-reference>\n${skillContext.promptReference}\n</skill-reference>\n\n最高优先级覆盖规则：采用“${styleLabels[input.style]}”风格，但全程只写可确认的正向信息。房源事实严格按以下优先级使用：人工复核与人工填写户型 > 加入人工补充后的描述 > 对应房间的实景识别细节。authoritativeLayout 是唯一允许写入口播的整套厅室数量；layoutStatus 为 unconfirmed 时，正文禁止出现任何具体“几室几厅”表述。不得根据房间列表、房间名称或实景照片反推整套户型。实景照片不是故事结构来源，只是可选细节点缀：先根据户型、人工补充、人工复核和故事模板建立完整口播；每个房间最多使用1个实景细节，如果影响顺畅可以不用。不得使用“可以看到”“照片中”“画面中”“该空间具备”“此处配置”等识别报告语气；不得因为实景照片改变人设口吻、故事主线或房间动线。参考中的顾虑、限制、代价、缺点和负面比较均不适用于本任务。“看房人纠结型”改写为正向生活选择，不制造房屋问题。先建立完整户型认知，再围绕一个核心命题组织故事，保持真实漫游顺序，默认从入口进入公共空间。人工补充亮点必须保留事实含义，但允许自然改写；把亮点放进与它最相关的空间、人物动作或生活场景中，并说明生活价值。禁止使用“这里还要重点说一句”“人工补充的信息是”“另外一个亮点是”等报幕句式，禁止把亮点集中罗列或原样拼接。不得编造、重复或直接喊口号。${lengthRule}。输出 JSON。`
+        `你正在执行 residential-story-voiceover。以下是本次运行时从 Skill Markdown 动态加载的唯一写作参考：\n\n<skill-reference>\n${activeSkillContext.promptReference}\n</skill-reference>\n\n最高优先级覆盖规则：采用“${styleLabels[input.style]}”风格，但全程只写可确认的正向信息。房源事实严格按以下优先级使用：人工复核与人工填写户型 > 加入人工补充后的描述 > 对应房间的实景识别细节。authoritativeLayout 是唯一允许写入口播的整套厅室数量；layoutStatus 为 unconfirmed 时，正文禁止出现任何具体“几室几厅”表述。不得根据房间列表、房间名称或实景照片反推整套户型。实景照片不是故事结构来源，只是可选细节点缀：先根据户型、人工补充、人工复核和故事模板建立完整口播；每个房间最多使用1个实景细节，如果影响顺畅可以不用。不得使用“可以看到”“照片中”“画面中”“该空间具备”“此处配置”等识别报告语气；不得因为实景照片改变人设口吻、故事主线或房间动线。参考中的顾虑、限制、代价、缺点和负面比较均不适用于本任务。“看房人纠结型”改写为正向生活选择，不制造房屋问题。先建立完整户型认知，再围绕一个核心命题组织故事，保持真实漫游顺序，默认从入口进入公共空间。人工补充亮点必须保留事实含义，但允许自然改写；把亮点放进与它最相关的空间、人物动作或生活场景中，并说明生活价值。禁止使用“这里还要重点说一句”“人工补充的信息是”“另外一个亮点是”等报幕句式，禁止把亮点集中罗列或原样拼接。不得编造、重复或直接喊口号。${lengthRule}。输出 JSON。`
     },
     {
       role: "user",
@@ -685,7 +691,8 @@ export async function generatePropertyScript(jsonClient, rawInput) {
         narrativeVoice: matrixInput(input).narrativeVoice,
         narrativeVoiceLabel: narrativeVoiceLabels[matrixInput(input).narrativeVoice],
         contentFocus: matrixInput(input).contentFocus,
-        contentFocusLabel: contentFocusLabels[matrixInput(input).contentFocus]
+        contentFocusLabel: contentFocusLabels[matrixInput(input).contentFocus],
+        scriptDirection: input.scriptDirection || ""
       } : null,
       manualHighlights: input.manualHighlights.map((highlight) => ({
         highlight,

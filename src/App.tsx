@@ -248,6 +248,7 @@ type PropertyScriptResult = {
       narrativeVoiceLabel: string;
       contentFocus: string;
       contentFocusLabel: string;
+      scriptDirection?: string;
     } | null;
     manualHighlights: Array<{ highlight: string; included: boolean }>;
     matchedCases?: Array<{ caseId: string; title: string }>;
@@ -1389,6 +1390,7 @@ function PropertyHighlightAgentPanel(props: {
   const [targetAudience, setTargetAudience] = useState("三口之家");
   const [narrativeVoice, setNarrativeVoice] = useState<"owner" | "viewer" | "abstract">("viewer");
   const [contentFocus, setContentFocus] = useState<"full_home" | "renovation" | "core_space">("full_home");
+  const [scriptDirection, setScriptDirection] = useState("");
   const [result, setResult] = useState<PropertyScriptResult | null>(null);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -1424,7 +1426,8 @@ function PropertyHighlightAgentPanel(props: {
             scriptVariant: "matrix",
             targetAudience,
             narrativeVoice,
-            contentFocus
+            contentFocus,
+            scriptDirection
           }),
           floorplanAnalysis: {
             schemaVersion: "floorplan-analysis/v1",
@@ -1641,6 +1644,16 @@ function PropertyHighlightAgentPanel(props: {
                 <option value="core_space">核心空间</option>
               </select>
             </label>
+            <label className="field property-facts-wide">
+              <span>本条脚本希望侧重讲解的部分（可选）</span>
+              <textarea
+                value={scriptDirection}
+                onChange={(event) => setScriptDirection(event.target.value)}
+                placeholder="例如：多讲孩子上学和儿童房；重点突出衣帽间改造；用更抽象的爽感讲客厅和阳台。留空则按矩阵和人工亮点自动生成。"
+                rows={3}
+              />
+              <small>这是创作方向，不会覆盖已确认房源事实；人工补充亮点仍是事实来源。</small>
+            </label>
           </>
         )}
         <label className="field">
@@ -1729,6 +1742,9 @@ function PropertyHighlightAgentPanel(props: {
                   <strong>矩阵选择</strong>
                   <span>{result.generationTrace.matrixSelection.targetAudience}</span>
                   <small>{result.generationTrace.matrixSelection.narrativeVoiceLabel} · {result.generationTrace.matrixSelection.contentFocusLabel}</small>
+                  {result.generationTrace.matrixSelection.scriptDirection && (
+                    <small>侧重：{result.generationTrace.matrixSelection.scriptDirection}</small>
+                  )}
                 </div>
               )}
               <div>
