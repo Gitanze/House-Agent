@@ -242,6 +242,13 @@ type PropertyScriptResult = {
     selectedStyleSection: string;
     loadedAt: string;
     positiveOnlyOverride: boolean;
+    matrixSelection?: {
+      targetAudience: string;
+      narrativeVoice: string;
+      narrativeVoiceLabel: string;
+      contentFocus: string;
+      contentFocusLabel: string;
+    } | null;
     manualHighlights: Array<{ highlight: string; included: boolean }>;
     matchedCases?: Array<{ caseId: string; title: string }>;
   };
@@ -1717,6 +1724,13 @@ function PropertyHighlightAgentPanel(props: {
           {result.generationTrace && <article className="brief-card generation-trace-card">
             <div className="card-title"><Database size={18} /><h2>本次口播参考来源</h2></div>
             <div className="trace-grid">
+              {result.generationTrace.matrixSelection && (
+                <div>
+                  <strong>矩阵选择</strong>
+                  <span>{result.generationTrace.matrixSelection.targetAudience}</span>
+                  <small>{result.generationTrace.matrixSelection.narrativeVoiceLabel} · {result.generationTrace.matrixSelection.contentFocusLabel}</small>
+                </div>
+              )}
               <div>
                 <strong>Skill 规则</strong>
                 <span>{result.generationTrace.skill.path}</span>

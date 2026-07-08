@@ -1374,7 +1374,13 @@ app.post("/api/highlight-agent/start", async (req, res) => {
 
 app.post("/api/script-agent/generate", async (req, res) => {
   try {
-    const result = await generatePropertyScript(highlightJsonClient, req.body);
+    const result = await generatePropertyScript(highlightJsonClient, {
+      ...req.body,
+      scriptVariant: "matrix",
+      targetAudience: String(req.body?.targetAudience || req.body?.familyType || "当前房源的真实潜在买家").trim(),
+      narrativeVoice: req.body?.narrativeVoice || "viewer",
+      contentFocus: req.body?.contentFocus || "full_home"
+    });
     const savedScript = req.body?.propertyRecordId
       ? propertyRecordStore.addScript(req.body.propertyRecordId, result)
       : null;

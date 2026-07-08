@@ -680,6 +680,13 @@ export async function generatePropertyScript(jsonClient, rawInput) {
     voiceover: voiceoverResult.voiceover,
     generationTrace: {
       ...skillContext.trace,
+      matrixSelection: matrixMode ? {
+        targetAudience: matrixInput(input).targetAudience,
+        narrativeVoice: matrixInput(input).narrativeVoice,
+        narrativeVoiceLabel: narrativeVoiceLabels[matrixInput(input).narrativeVoice],
+        contentFocus: matrixInput(input).contentFocus,
+        contentFocusLabel: contentFocusLabels[matrixInput(input).contentFocus]
+      } : null,
       manualHighlights: input.manualHighlights.map((highlight) => ({
         highlight,
         included: voiceoverResult.highlightCoverage.includes(highlight)
