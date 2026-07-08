@@ -1,19 +1,40 @@
 import {
   AlertTriangle,
   BadgeCheck,
+  BookOpen,
   Database,
   FileImage,
   Home,
   Loader2,
   MessageCircleQuestion,
+  Plus,
   Save,
   Sparkles,
-  UploadCloud
+  Trash2,
+  UploadCloud,
+  WandSparkles,
+  X
 } from "lucide-react";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 
 const focusOptions = ["采光", "动线", "收纳", "儿童房", "老人房", "改造潜力"];
 const maxImageSize = 8 * 1024 * 1024;
+
+async function readApiJson(response: Response) {
+  const text = await response.text();
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    if (/^\s*<!doctype/i.test(text) || /^\s*<html/i.test(text)) {
+      throw new Error("后端没有加载到这个接口。请停止当前服务并重新运行 npm run dev，然后再试。");
+    }
+    throw new Error(`接口返回了非 JSON 内容（HTTP ${response.status}）。`);
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`接口返回的 JSON 格式无效（HTTP ${response.status}）。`);
+  }
+}
 const featureOptions: Record<string, string[]> = {
   northSouthVentilation: ["true", "false", "unknown"],
   dynamicStaticZoning: ["good", "medium", "weak", "unknown"],
@@ -23,14 +44,50 @@ const featureOptions: Record<string, string[]> = {
   storagePotential: ["good", "medium", "weak", "unknown"]
 };
 
+const roomTypeOptions = [
+  "living_room",
+  "dining_room",
+  "kitchen",
+  "primary_bedroom",
+  "bedroom",
+  "child_room",
+  "study",
+  "bathroom",
+  "balcony",
+  "entrance",
+  "corridor",
+  "storage",
+  "unknown"
+];
+
+const roomLightOptions = ["good", "medium", "weak", "unknown"];
+
 type Room = {
   id: string;
   type: string;
   name?: string;
   position?: string;
+  areaAssessment?: string;
+  geometry?: string;
+  orientation?: string;
   connectedTo?: string[];
-  hasWindow?: boolean;
+  hasWindow?: boolean | "unknown";
   light?: "good" | "medium" | "weak" | "unknown" | string;
+  roomVisual?: {
+    image: UploadedImage;
+    provider: string;
+    analyzedAt: string;
+    analysis: {
+      objectiveDescription?: string;
+      visibleElements?: string[];
+      spatialLayout?: string;
+      finishAndCondition?: string;
+      windowAndLighting?: string;
+      storage?: string;
+      scriptFacts?: string[];
+      unknowns?: string[];
+    };
+  };
 };
 
 type RecognizedFloorplan = {
@@ -44,6 +101,20 @@ type RecognizedFloorplan = {
   suitableFor?: string[];
   unknowns?: string[];
   needsReview?: string[];
+  basicRoute?: string;
+};
+
+type PropertyFacts = {
+  community: string;
+  city: string;
+  district: string;
+  buildingArea?: string;
+  declaredLayout: string;
+  decoration: string;
+  elevator: string;
+  schoolInfo: string;
+  transitInfo: string;
+  amenities: string;
 };
 
 type Brief = {
@@ -54,13 +125,161 @@ type Brief = {
 };
 
 type AnalyzeResponse = {
+  schemaVersion?: "property-facts/v1";
+  floorplanSchemaVersion?: "floorplan-analysis/v1";
+  status?: "completed";
+  threadId?: string;
   provider: {
     vision?: string;
+    description?: "deepseek" | "fallback";
     brief: "deepseek" | "fallback";
   };
   image?: BenchmarkImage;
   recognized: RecognizedFloorplan;
+  manualHighlights?: string[];
+  propertyFacts?: PropertyFacts;
+  sources?: Array<{ field: string; source: "user" | "floorplan" | "manual"; status: string }>;
+  warnings?: string[];
+  objectiveDescription?: string;
+  enrichedDescription?: string;
   brief: Brief;
+  recordId?: string;
+  recordTitle?: string;
+};
+
+type PendingReview = {
+  status: "needs_review";
+  threadId: string;
+  review: {
+    stage: "recognition" | "highlights";
+    recognized: RecognizedFloorplan;
+    highlights?: {
+      pros: string[];
+      cons: string[];
+      suitableFor: string[];
+      evidence: Array<{ id: string; evidence: string }>;
+    };
+  };
+};
+
+type HighlightAgentResult = {
+  schemaVersion: "property-highlight-plan/v1";
+  status: string;
+  threadId: string;
+  searchQueries: string[];
+  sourceNotes: Array<{
+    id: string;
+    title: string;
+    bodyExcerpt?: string;
+    theme?: string;
+    targetAudience?: string;
+    hookType?: string;
+    structure?: string;
+    tone?: string;
+    metrics?: Record<string, number>;
+    ranking?: { heatScore?: number };
+    relevance?: { reasons?: string[] };
+  }>;
+  trendPatterns: Array<{
+    hook: string;
+    structure: string;
+    keywords: string[];
+  }>;
+  highlightStrategy?: {
+    audience: string;
+    angle: string;
+    highlights: Array<{
+      title: string;
+      value: string;
+      sourceType: "floorplan" | "manual";
+      evidence: string;
+    }>;
+  };
+  openingHook: string;
+  talk30s: string;
+  warnings: string[];
+  runMetadata: {
+    provider: string;
+    contentModel: string;
+    cacheHits: number;
+    crawlerStatus: string;
+    executionPath: string[];
+  };
+};
+
+type PropertyScriptResult = {
+  schemaVersion: "property-video-script/v1";
+  provider: "deepseek" | "fallback";
+  duration: 60 | 90;
+  style: string;
+  styleLabel: string;
+  storyPositioning: string;
+  voiceover: string;
+  pendingConfirmations: string[];
+  scenes: Array<{
+    sceneNumber: number;
+    durationSeconds: number;
+    roomId: string;
+    space: string;
+    storyVoiceover: string;
+    shot: {
+      framing: string;
+      cameraMove: string;
+      focus: string;
+      note: string;
+    };
+  }>;
+  onSiteConfirmations: string[];
+  generationTrace?: {
+    skill: { path: string; modifiedAt: string; sha256: string };
+    reference: { path: string; modifiedAt: string; sha256: string };
+    selectedStyleSection: string;
+    loadedAt: string;
+    positiveOnlyOverride: boolean;
+    manualHighlights: Array<{ highlight: string; included: boolean }>;
+    matchedCases?: Array<{ caseId: string; title: string }>;
+  };
+  scriptId?: string;
+  scriptName?: string;
+};
+
+type SavedScript = {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  result: PropertyScriptResult;
+  derivedFromScriptId?: string;
+  refinementInstruction?: string;
+  generationType?: "refinement";
+};
+
+type PropertyRecordSummary = {
+  id: string;
+  title: string;
+  updatedAt: string;
+  area: string;
+  layoutType: string;
+  roomCount: number;
+  scriptCount: number;
+  imageName: string;
+};
+
+type PropertyRecord = {
+  id: string;
+  title: string;
+  updatedAt: string;
+  image: UploadedImage;
+  propertyFacts: PropertyFacts;
+  manualHighlights: string[];
+  factConfirmations: Array<{
+    question: string;
+    answer: string;
+    source: "human_review";
+    updatedAt: string | null;
+  }>;
+  analysis: AnalyzeResponse;
+  scripts: SavedScript[];
 };
 
 type UploadedImage = {
@@ -121,11 +340,35 @@ function arrayToLines(value?: string[]) {
   return (value ?? []).join("\n");
 }
 
+function nextRoomId(rooms: Room[]) {
+  let index = rooms.length + 1;
+  let id = `room_${index}`;
+  const used = new Set(rooms.map((room) => room.id));
+  while (used.has(id)) {
+    index += 1;
+    id = `room_${index}`;
+  }
+  return id;
+}
+
 export function App() {
   const [mode, setMode] = useState<Mode>("brief");
   const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
+  const [propertyArea, setPropertyArea] = useState("");
+  const [propertyFacts, setPropertyFacts] = useState<PropertyFacts>({
+    community: "",
+    city: "",
+    district: "",
+    declaredLayout: "",
+    decoration: "",
+    elevator: "",
+    schoolInfo: "",
+    transitInfo: "",
+    amenities: ""
+  });
   const [familyType, setFamilyType] = useState("年轻家庭");
   const [focusTags, setFocusTags] = useState<string[]>(["采光", "动线", "收纳"]);
+  const [manualHighlightsText, setManualHighlightsText] = useState("");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [editable, setEditable] = useState<RecognizedFloorplan | null>(null);
   const [taxonomy, setTaxonomy] = useState<LabelTaxonomy>(emptyTaxonomy);
@@ -136,8 +379,16 @@ export function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedConnectionRoomId, setSelectedConnectionRoomId] = useState<string | null>(null);
+  const [pendingReview, setPendingReview] = useState<PendingReview | null>(null);
+  const [propertyRecords, setPropertyRecords] = useState<PropertyRecordSummary[]>([]);
+  const [activeRecord, setActiveRecord] = useState<PropertyRecord | null>(null);
+  const [recordTitle, setRecordTitle] = useState("");
 
-  const canSubmit = Boolean(uploadedImage) && !isLoading;
+  const canSubmit =
+    Boolean(uploadedImage) &&
+    Number.isFinite(Number(propertyArea)) &&
+    Number(propertyArea) > 0 &&
+    !isLoading;
   const activeRecognized = editable ?? result?.recognized ?? null;
   const roomSummary = useMemo(() => {
     const rooms = activeRecognized?.rooms ?? [];
@@ -148,6 +399,7 @@ export function App() {
   useEffect(() => {
     void loadTaxonomy();
     void loadBenchmarkImages();
+    void loadPropertyRecords();
   }, []);
 
   async function loadTaxonomy() {
@@ -159,6 +411,67 @@ export function App() {
     const response = await fetch("/api/benchmark-images");
     const data = (await response.json()) as { images: BenchmarkImage[] };
     setBenchmarkImages(data.images);
+  }
+
+  async function loadPropertyRecords() {
+    const response = await fetch("/api/property-records");
+    if (!response.ok) return;
+    const data = await response.json() as { records: PropertyRecordSummary[] };
+    setPropertyRecords(data.records);
+  }
+
+  async function openPropertyRecord(id: string) {
+    const response = await fetch(`/api/property-records/${id}`);
+    const record = await response.json() as PropertyRecord;
+    if (!response.ok) {
+      setError((record as unknown as { error?: string }).error || "读取户型档案失败。");
+      return;
+    }
+    setActiveRecord(record);
+    setRecordTitle(record.title);
+    setUploadedImage(record.image);
+    setPropertyFacts(record.propertyFacts);
+    setPropertyArea(String(record.analysis.recognized.area || "").replace(/㎡/g, ""));
+    setManualHighlightsText(arrayToLines(record.manualHighlights));
+    setResult({ ...record.analysis, recordId: record.id, recordTitle: record.title });
+    setEditable(record.analysis.recognized);
+    setMode("brief");
+  }
+
+  async function saveActiveRecord() {
+    if (!activeRecord) return;
+    const response = await fetch(`/api/property-records/${activeRecord.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: recordTitle,
+        propertyFacts: { ...propertyFacts, buildingArea: `${propertyArea}㎡` },
+        manualHighlights: linesToArray(manualHighlightsText),
+        analysis: { ...result, recognized: editable ?? result?.recognized }
+      })
+    });
+    const record = await response.json();
+    if (!response.ok) {
+      setError(record.error || "保存户型档案失败。");
+      return;
+    }
+    setActiveRecord(record);
+    setSaveMessage("户型档案已保存");
+    await loadPropertyRecords();
+  }
+
+  async function deletePropertyRecord(id: string) {
+    if (!window.confirm("删除后，该户型下的所有脚本方案也会一起删除。确定继续吗？")) return;
+    const response = await fetch(`/api/property-records/${id}`, { method: "DELETE" });
+    if (!response.ok) return;
+    if (activeRecord?.id === id) {
+      setActiveRecord(null);
+      setRecordTitle("");
+      setResult(null);
+      setEditable(null);
+      setUploadedImage(null);
+    }
+    await loadPropertyRecords();
   }
 
   function toggleFocus(tag: string) {
@@ -208,15 +521,40 @@ export function App() {
         body: JSON.stringify({
           imageDataUrl: uploadedImage.dataUrl,
           imageName: uploadedImage.name,
+          area: propertyArea,
+          property: propertyFacts,
           familyType,
-          focusTags
+          focusTags,
+          manualHighlights: linesToArray(manualHighlightsText)
         })
       });
 
-      const data = await response.json();
+      const data = await readApiJson(response);
       if (!response.ok) throw new Error(data.error || "户型图分析失败。");
+      if (data.status === "needs_review") {
+        const review = data as PendingReview;
+        setPendingReview(review);
+        setEditable({
+          ...review.review.recognized,
+          pros: review.review.highlights?.pros ?? review.review.recognized.pros ?? [],
+          cons: review.review.highlights?.cons ?? review.review.recognized.cons ?? [],
+          suitableFor:
+            review.review.highlights?.suitableFor ??
+            review.review.recognized.suitableFor ??
+            []
+        });
+        setSaveMessage("Agent 已暂停，请校正后继续");
+        setMode("annotation");
+        return;
+      }
+      setPendingReview(null);
       setResult(data as AnalyzeResponse);
       setEditable((data as AnalyzeResponse).recognized);
+      if (data.recordId) {
+        setRecordTitle(data.recordTitle || uploadedImage.name);
+        await loadPropertyRecords();
+        await openPropertyRecord(data.recordId);
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "户型图分析失败，请稍后重试。");
     } finally {
@@ -257,12 +595,30 @@ export function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           fileName: selectedCase.fileName,
+          property: propertyFacts,
           familyType,
-          focusTags
+          focusTags,
+          manualHighlights: linesToArray(manualHighlightsText)
         })
       });
-      const data = await response.json();
+      const data = await readApiJson(response);
       if (!response.ok) throw new Error(data.error || "case 识图失败。");
+      if (data.status === "needs_review") {
+        const review = data as PendingReview;
+        setPendingReview(review);
+        setEditable({
+          ...review.review.recognized,
+          pros: review.review.highlights?.pros ?? review.review.recognized.pros ?? [],
+          cons: review.review.highlights?.cons ?? review.review.recognized.cons ?? [],
+          suitableFor:
+            review.review.highlights?.suitableFor ??
+            review.review.recognized.suitableFor ??
+            []
+        });
+        setSaveMessage("Agent 已暂停，请校正后继续");
+        return;
+      }
+      setPendingReview(null);
       setResult(data as AnalyzeResponse);
       setEditable((data as AnalyzeResponse).recognized);
     } catch (caught) {
@@ -295,6 +651,93 @@ export function App() {
         : [...currentList, id];
       return { ...next, [section]: nextList };
     });
+  }
+
+  async function addTaxonomyLabel(section: LabelSection, label: string) {
+    const cleanLabel = label.trim();
+    if (!cleanLabel) return;
+    setError("");
+    setSaveMessage("");
+
+    try {
+      const response = await fetch("/api/label-taxonomy/label", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, label: cleanLabel })
+      });
+      const data = await readApiJson(response);
+      if (!response.ok) throw new Error(data.error || "新增标签失败。");
+      setTaxonomy(data.taxonomy as LabelTaxonomy);
+      const created = data.label as LabelItem;
+      setEditable((current) => {
+        const next = current ?? {};
+        const currentList = next[section] ?? [];
+        return { ...next, [section]: Array.from(new Set([...currentList, created.id])) };
+      });
+      setSaveMessage(`已新增标签：${created.label}`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "新增标签失败，请稍后重试。");
+    }
+  }
+
+  async function deleteTaxonomyLabel(section: LabelSection, id: string) {
+    const item = taxonomy[section].find((entry) => entry.id === id);
+    const label = item ? `${item.label} (${item.id})` : id;
+    if (!window.confirm(`确定删除标签 ${label} 吗？它会同步从已保存 benchmark 中移除。`)) return;
+    setError("");
+    setSaveMessage("");
+
+    try {
+      const response = await fetch("/api/label-taxonomy/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, id })
+      });
+      const data = await readApiJson(response);
+      if (!response.ok) throw new Error(data.error || "删除标签失败。");
+      setTaxonomy(data.taxonomy as LabelTaxonomy);
+      setEditable((current) => {
+        if (!current) return current;
+        return { ...current, [section]: (current[section] ?? []).filter((itemId) => itemId !== id) };
+      });
+      setSaveMessage(`已删除标签，并同步 ${data.touchedCases ?? 0} 个 benchmark 文件`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "删除标签失败，请稍后重试。");
+    }
+  }
+
+  function addRoom() {
+    setEditable((current) => {
+      const rooms = current?.rooms ?? [];
+      const id = nextRoomId(rooms);
+      const room: Room = {
+        id,
+        type: "unknown",
+        name: "新房间",
+        position: "unknown",
+        connectedTo: [],
+        hasWindow: false,
+        light: "unknown"
+      };
+      return { ...(current ?? {}), rooms: [...rooms, room] };
+    });
+  }
+
+  function updateRoom(roomId: string, patch: Partial<Room>) {
+    setEditable((current) => ({
+      ...(current ?? {}),
+      rooms: (current?.rooms ?? []).map((room) => (room.id === roomId ? { ...room, ...patch } : room))
+    }));
+  }
+
+  function deleteRoom(roomId: string) {
+    setEditable((current) => ({
+      ...(current ?? {}),
+      rooms: (current?.rooms ?? [])
+        .filter((room) => room.id !== roomId)
+        .map((room) => ({ ...room, connectedTo: (room.connectedTo ?? []).filter((id) => id !== roomId) }))
+    }));
+    setSelectedConnectionRoomId((current) => (current === roomId ? null : current));
   }
 
   function toggleRoomConnection(roomId: string) {
@@ -346,10 +789,11 @@ export function App() {
         body: JSON.stringify({
           recognized: editable,
           familyType,
-          focusTags
+          focusTags,
+          manualHighlights: linesToArray(manualHighlightsText)
         })
       });
-      const data = await response.json();
+      const data = await readApiJson(response);
       if (!response.ok) throw new Error(data.error || "重新生成讲解失败。");
       setResult((current) => ({
         provider: {
@@ -384,7 +828,7 @@ export function App() {
           recognized: editable
         })
       });
-      const data = await response.json();
+      const data = await readApiJson(response);
       if (!response.ok) throw new Error(data.error || "保存失败。");
       setSaveMessage(`已保存：${data.path}`);
       await loadBenchmarkImages();
@@ -392,6 +836,75 @@ export function App() {
       setError(caught instanceof Error ? caught.message : "保存失败，请稍后重试。");
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function resumeReview(action: "edit" | "approve") {
+    if (!pendingReview || !editable || isLoading) return;
+    setIsLoading(true);
+    setError("");
+    setSaveMessage("");
+
+    try {
+      const body =
+        pendingReview.review.stage === "recognition"
+          ? {
+              recognized: editable,
+              familyType,
+              focusTags,
+              manualHighlights: linesToArray(manualHighlightsText),
+              property: propertyFacts
+            }
+          : action === "approve"
+            ? {
+                action: "approve",
+                familyType,
+                focusTags,
+                manualHighlights: linesToArray(manualHighlightsText),
+                property: propertyFacts
+              }
+            : {
+                highlights: {
+                  pros: editable.pros ?? [],
+                  cons: editable.cons ?? [],
+                  suitableFor: editable.suitableFor ?? [],
+                  evidence: pendingReview.review.highlights?.evidence ?? []
+                },
+                familyType,
+                focusTags,
+                manualHighlights: linesToArray(manualHighlightsText),
+                property: propertyFacts
+              };
+      const response = await fetch(
+        `/api/floorplan-review/${pendingReview.threadId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        }
+      );
+      const data = await readApiJson(response);
+      if (!response.ok) throw new Error(data.error || "恢复 Agent 失败。");
+      if (data.status === "needs_review") {
+        const review = data as PendingReview;
+        setPendingReview(review);
+        setEditable({
+          ...review.review.recognized,
+          pros: review.review.highlights?.pros ?? [],
+          cons: review.review.highlights?.cons ?? [],
+          suitableFor: review.review.highlights?.suitableFor ?? []
+        });
+        setSaveMessage("修正后仍有待确认项，请继续复核");
+        return;
+      }
+      setPendingReview(null);
+      setResult(data as AnalyzeResponse);
+      setEditable((data as AnalyzeResponse).recognized);
+      setSaveMessage("人工复核完成，Agent 已从暂停位置继续并完成分析");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "恢复 Agent 失败。");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -417,21 +930,44 @@ export function App() {
           </div>
         </header>
 
+        {mode === "brief" && (
+          <PropertyArchiveShelf
+            records={propertyRecords}
+            activeRecordId={activeRecord?.id ?? null}
+            title={recordTitle}
+            canSave={Boolean(activeRecord)}
+            onTitleChange={setRecordTitle}
+            onOpen={openPropertyRecord}
+            onSave={saveActiveRecord}
+            onDelete={deletePropertyRecord}
+          />
+        )}
+
         {mode === "brief" ? (
           <BriefMode
             uploadedImage={uploadedImage}
+            propertyArea={propertyArea}
+            propertyFacts={propertyFacts}
             familyType={familyType}
             focusTags={focusTags}
+            manualHighlightsText={manualHighlightsText}
             result={result}
+            activeRecord={activeRecord}
             editable={editable}
             error={error}
             isLoading={isLoading}
             canSubmit={canSubmit}
             roomSummary={roomSummary}
             onImageChange={handleImageChange}
+            onPropertyAreaChange={setPropertyArea}
+            onPropertyFactsChange={(patch) =>
+              setPropertyFacts((current) => ({ ...current, ...patch }))
+            }
             onFamilyTypeChange={setFamilyType}
             onToggleFocus={toggleFocus}
+            onManualHighlightsChange={setManualHighlightsText}
             onSubmit={submit}
+            onRecordRefresh={() => activeRecord && openPropertyRecord(activeRecord.id)}
           />
         ) : (
           <AnnotationMode
@@ -448,6 +984,7 @@ export function App() {
             isSaving={isSaving}
             roomSummary={roomSummary}
             selectedConnectionRoomId={selectedConnectionRoomId}
+            pendingReview={pendingReview}
             onSelectCase={selectBenchmarkImage}
             onAnalyzeCase={analyzeSelectedCase}
             onFamilyTypeChange={setFamilyType}
@@ -455,9 +992,15 @@ export function App() {
             onUpdateEditable={updateEditable}
             onUpdateFeature={updateFeature}
             onToggleLabel={toggleLabel}
+            onAddLabel={addTaxonomyLabel}
+            onDeleteLabel={deleteTaxonomyLabel}
+            onAddRoom={addRoom}
+            onUpdateRoom={updateRoom}
+            onDeleteRoom={deleteRoom}
             onToggleRoomConnection={toggleRoomConnection}
             onRegenerateBrief={regenerateBrief}
             onSave={saveBenchmarkCase}
+            onResumeReview={resumeReview}
           />
         )}
       </section>
@@ -465,31 +1008,146 @@ export function App() {
   );
 }
 
+function PropertyArchiveShelf(props: {
+  records: PropertyRecordSummary[];
+  activeRecordId: string | null;
+  title: string;
+  canSave: boolean;
+  onTitleChange: (value: string) => void;
+  onOpen: (id: string) => void;
+  onSave: () => void;
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <section className="record-shelf" aria-label="本地户型档案">
+      <div className="record-shelf-head">
+        <div>
+          <p className="eyebrow">Local Floorplan Library</p>
+          <h2>本地户型档案</h2>
+        </div>
+        {props.canSave && (
+          <div className="active-record-editor">
+            <input value={props.title} onChange={(event) => props.onTitleChange(event.target.value)} aria-label="当前档案名称" />
+            <button type="button" onClick={props.onSave}><Save size={15} />保存当前修改</button>
+          </div>
+        )}
+      </div>
+      {props.records.length ? (
+        <div className="record-card-list">
+          {props.records.map((record) => (
+            <article key={record.id} className={record.id === props.activeRecordId ? "record-card active" : "record-card"}>
+              <button className="record-open" type="button" onClick={() => props.onOpen(record.id)}>
+                <strong>{record.title}</strong>
+                <span>{record.layoutType || "待确认户型"} · {record.area || "面积待确认"}</span>
+                <small>{record.roomCount} 个空间 · {record.scriptCount} 个脚本方案</small>
+              </button>
+              <button className="record-delete" type="button" aria-label={`删除${record.title}`} onClick={() => props.onDelete(record.id)}>
+                <Trash2 size={14} />
+              </button>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="record-empty">首次识图完成后会自动保存在这里。</p>
+      )}
+    </section>
+  );
+}
+
 function BriefMode(props: {
   uploadedImage: UploadedImage | null;
+  propertyArea: string;
+  propertyFacts: PropertyFacts;
   familyType: string;
   focusTags: string[];
+  manualHighlightsText: string;
   result: AnalyzeResponse | null;
+  activeRecord: PropertyRecord | null;
   editable: RecognizedFloorplan | null;
   error: string;
   isLoading: boolean;
   canSubmit: boolean;
   roomSummary: string;
   onImageChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onPropertyAreaChange: (value: string) => void;
+  onPropertyFactsChange: (patch: Partial<PropertyFacts>) => void;
   onFamilyTypeChange: (value: string) => void;
   onToggleFocus: (tag: string) => void;
+  onManualHighlightsChange: (value: string) => void;
   onSubmit: (event: FormEvent) => void;
+  onRecordRefresh: () => void;
 }) {
   return (
     <>
       <form className="input-panel" onSubmit={props.onSubmit}>
         <UploadBox uploadedImage={props.uploadedImage} onImageChange={props.onImageChange} />
+        <div className="property-facts-grid">
+          <label className="field">
+            <span>小区名称</span>
+            <input value={props.propertyFacts.community} onChange={(event) => props.onPropertyFactsChange({ community: event.target.value })} placeholder="例如：滨江花园" />
+          </label>
+          <label className="field">
+            <span>城市</span>
+            <input value={props.propertyFacts.city} onChange={(event) => props.onPropertyFactsChange({ city: event.target.value })} placeholder="例如：上海" />
+          </label>
+          <label className="field">
+            <span>板块 / 区域</span>
+            <input value={props.propertyFacts.district} onChange={(event) => props.onPropertyFactsChange({ district: event.target.value })} placeholder="例如：浦东金桥" />
+          </label>
+          <label className="field">
+            <span>人工填写户型</span>
+            <input value={props.propertyFacts.declaredLayout} onChange={(event) => props.onPropertyFactsChange({ declaredLayout: event.target.value })} placeholder="例如：3室2厅1卫" />
+          </label>
+          <label className="field">
+            <span>装修情况</span>
+            <input value={props.propertyFacts.decoration} onChange={(event) => props.onPropertyFactsChange({ decoration: event.target.value })} placeholder="例如：精装修、空置" />
+          </label>
+          <label className="field">
+            <span>电梯</span>
+            <input value={props.propertyFacts.elevator} onChange={(event) => props.onPropertyFactsChange({ elevator: event.target.value })} placeholder="例如：有电梯、两梯四户" />
+          </label>
+          <label className="field">
+            <span>学区 / 学校信息</span>
+            <textarea value={props.propertyFacts.schoolInfo} onChange={(event) => props.onPropertyFactsChange({ schoolInfo: event.target.value })} placeholder="未确认可留空" rows={2} />
+          </label>
+          <label className="field">
+            <span>交通信息</span>
+            <textarea value={props.propertyFacts.transitInfo} onChange={(event) => props.onPropertyFactsChange({ transitInfo: event.target.value })} placeholder="例如：距地铁站约800米" rows={2} />
+          </label>
+          <label className="field property-facts-wide">
+            <span>周边配套</span>
+            <textarea value={props.propertyFacts.amenities} onChange={(event) => props.onPropertyFactsChange({ amenities: event.target.value })} placeholder="例如：商场、医院、公园等已核实信息" rows={2} />
+          </label>
+        </div>
+        <label className="field">
+          <span>房屋面积（㎡）*</span>
+          <input
+            type="number"
+            min="1"
+            step="0.1"
+            required
+            value={props.propertyArea}
+            onChange={(event) => props.onPropertyAreaChange(event.target.value)}
+            placeholder="例如：89"
+          />
+          <small>面积以人工填写为准，不使用平面图估算。</small>
+        </label>
         <ControlFields
           familyType={props.familyType}
           focusTags={props.focusTags}
           onFamilyTypeChange={props.onFamilyTypeChange}
           onToggleFocus={props.onToggleFocus}
         />
+        <label className="field">
+          <span>人工补充亮点</span>
+          <textarea
+            value={props.manualHighlightsText}
+            onChange={(event) => props.onManualHighlightsChange(event.target.value)}
+            placeholder={"每行填写一条平面图看不出的信息\n例如：满五唯一、精装修交付、可看小区中庭"}
+            rows={5}
+          />
+          <small>客观描述不会读取这些内容；补充版和后续讲解会标记为人工提供。</small>
+        </label>
         <StatusMessages error={props.error} />
         <button className="primary-action" type="submit" disabled={!props.canSubmit}>
           {props.isLoading ? <Loader2 className="spin" size={18} /> : <Sparkles size={18} />}
@@ -502,7 +1160,625 @@ function BriefMode(props: {
         isLoading={props.isLoading}
         roomSummary={props.roomSummary}
       />
+      {props.activeRecord && props.result?.warnings?.length ? (
+        <FactConfirmationPanel
+          record={props.activeRecord}
+          warnings={props.result.warnings}
+          onRefresh={props.onRecordRefresh}
+        />
+      ) : null}
+      {props.activeRecord && (props.editable ?? props.result?.recognized)?.rooms?.length ? (
+        <RoomVisualPanel
+          recordId={props.activeRecord.id}
+          rooms={(props.editable ?? props.result?.recognized)?.rooms ?? []}
+          onRefresh={props.onRecordRefresh}
+        />
+      ) : null}
+      {(props.editable ?? props.result?.recognized) && (
+        <PropertyHighlightAgentPanel
+          recognized={(props.editable ?? props.result?.recognized) as RecognizedFloorplan}
+          propertyFacts={props.propertyFacts}
+          enrichedDescription={props.result?.enrichedDescription ?? props.result?.objectiveDescription ?? ""}
+          propertyRecordId={props.activeRecord?.id}
+          savedScripts={props.activeRecord?.scripts ?? []}
+          factConfirmations={props.activeRecord?.factConfirmations ?? []}
+          onRecordRefresh={props.onRecordRefresh}
+          manualHighlightsText={props.manualHighlightsText}
+        />
+      )}
     </>
+  );
+}
+
+function FactConfirmationPanel(props: {
+  record: PropertyRecord;
+  warnings: string[];
+  onRefresh: () => void;
+}) {
+  const initial = props.warnings.map((question) => {
+    const saved = props.record.factConfirmations?.find((item) => item.question === question);
+    return saved || { question, answer: "", source: "human_review" as const, updatedAt: null };
+  });
+  const [items, setItems] = useState(initial);
+  const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    setItems(props.warnings.map((question) => {
+      const saved = props.record.factConfirmations?.find((item) => item.question === question);
+      return saved || { question, answer: "", source: "human_review" as const, updatedAt: null };
+    }));
+  }, [props.record.id, props.record.updatedAt, props.warnings.join("|")]);
+
+  async function save() {
+    setStatus("保存中...");
+    const now = new Date().toISOString();
+    const factConfirmations = items.map((item) => ({
+      ...item,
+      updatedAt: item.answer.trim() ? now : null
+    }));
+    const response = await fetch(`/api/property-records/${props.record.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ factConfirmations })
+    });
+    if (!response.ok) {
+      setStatus("保存失败");
+      return;
+    }
+    setStatus("人工复核已保存，并会作为后续脚本信息来源");
+    props.onRefresh();
+  }
+
+  return (
+    <section className="fact-confirmation-panel" aria-label="待确认信息人工复核">
+      <div className="highlight-agent-head">
+        <div>
+          <p className="eyebrow">Human Verification</p>
+          <h2>待确认信息人工复核</h2>
+          <p>每条补充都会保留“人工复核”来源，不会伪装成平面图或实景识别结论。</p>
+        </div>
+        <span className="agent-number">{items.filter((item) => item.answer.trim()).length}/{items.length}</span>
+      </div>
+      <div className="confirmation-list">
+        {items.map((item, index) => (
+          <label key={item.question} className={item.answer.trim() ? "confirmation-item completed" : "confirmation-item"}>
+            <span><AlertTriangle size={15} />{item.question}</span>
+            <textarea
+              rows={2}
+              value={item.answer}
+              onChange={(event) => setItems((current) => current.map((entry, entryIndex) =>
+                entryIndex === index ? { ...entry, answer: event.target.value } : entry
+              ))}
+              placeholder="填写现场核实、业主提供或资料确认后的客观信息"
+            />
+          </label>
+        ))}
+      </div>
+      <div className="confirmation-footer">
+        <small>{status}</small>
+        <button type="button" onClick={save}><Save size={15} />保存人工复核</button>
+      </div>
+    </section>
+  );
+}
+
+function RoomVisualPanel(props: {
+  recordId: string;
+  rooms: Room[];
+  onRefresh: () => void;
+}) {
+  const [busyRoomId, setBusyRoomId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
+  async function uploadRoomPhoto(room: Room, file?: File) {
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > maxImageSize) {
+      setError("房间照片需为 jpg、png 或 webp，且不超过 8MB。");
+      return;
+    }
+    setBusyRoomId(room.id);
+    setError("");
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(new Error("图片读取失败。"));
+        reader.readAsDataURL(file);
+      });
+      const response = await fetch(`/api/property-records/${props.recordId}/rooms/${room.id}/visual`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageDataUrl: dataUrl, imageName: file.name })
+      });
+      const data = await readApiJson(response);
+      if (!response.ok) throw new Error(data.error || "房间识别失败。");
+      props.onRefresh();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "房间识别失败。");
+    } finally {
+      setBusyRoomId(null);
+    }
+  }
+
+  async function removeRoomPhoto(roomId: string) {
+    const response = await fetch(`/api/property-records/${props.recordId}/rooms/${roomId}/visual`, { method: "DELETE" });
+    if (response.ok) props.onRefresh();
+  }
+
+  return (
+    <section className="room-visual-panel" aria-label="逐房实景识别">
+      <div className="highlight-agent-head">
+        <div>
+          <p className="eyebrow">Room Reality Layer</p>
+          <h2>逐房上传实景图</h2>
+          <p>每个房间上传一张实景照片，识别结果会保存到户型档案，并作为后续脚本事实依据。</p>
+        </div>
+        <span className="agent-number">01+</span>
+      </div>
+      {error && <div className="error-message">{error}</div>}
+      <div className="room-visual-grid">
+        {props.rooms.map((room) => {
+          const scriptFacts = Array.isArray(room.roomVisual?.analysis?.scriptFacts)
+            ? room.roomVisual.analysis.scriptFacts
+            : [];
+          return (
+          <article className="room-visual-card" key={room.id}>
+            {room.roomVisual?.image?.dataUrl ? (
+              <img src={room.roomVisual.image.dataUrl} alt={`${room.name || room.type}实景`} />
+            ) : (
+              <div className="room-photo-placeholder"><FileImage size={28} /><span>等待实景图</span></div>
+            )}
+            <div className="room-visual-body">
+              <div className="room-visual-title">
+                <strong>{room.name || room.type}</strong>
+                <span>{room.roomVisual ? "已识别" : "未上传"}</span>
+              </div>
+              {room.roomVisual?.analysis?.objectiveDescription && <p>{room.roomVisual.analysis.objectiveDescription}</p>}
+              {scriptFacts.length ? (
+                <ul>{scriptFacts.map((fact) => <li key={fact}>{fact}</li>)}</ul>
+              ) : null}
+              <div className="room-visual-actions">
+                <label>
+                  {busyRoomId === room.id ? <Loader2 className="spin" size={15} /> : <UploadCloud size={15} />}
+                  {room.roomVisual ? "替换并重识别" : "上传并识别"}
+                  <input type="file" accept="image/*" disabled={Boolean(busyRoomId)} onChange={(event) => uploadRoomPhoto(room, event.target.files?.[0])} />
+                </label>
+                {room.roomVisual && <button type="button" onClick={() => removeRoomPhoto(room.id)}><Trash2 size={14} />删除</button>}
+              </div>
+            </div>
+          </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function PropertyHighlightAgentPanel(props: {
+  recognized: RecognizedFloorplan;
+  propertyFacts: PropertyFacts;
+  enrichedDescription: string;
+  propertyRecordId?: string;
+  savedScripts: SavedScript[];
+  factConfirmations: PropertyRecord["factConfirmations"];
+  onRecordRefresh: () => void;
+  manualHighlightsText: string;
+}) {
+  const [duration, setDuration] = useState<60 | 90>(60);
+  const [style, setStyle] = useState("buyer_dilemma");
+  const [result, setResult] = useState<PropertyScriptResult | null>(null);
+  const [status, setStatus] = useState("");
+  const [error, setError] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
+  const [activeScriptId, setActiveScriptId] = useState<string | null>(null);
+  const [scriptName, setScriptName] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
+  const [refinementInstruction, setRefinementInstruction] = useState("");
+  const [isRefining, setIsRefining] = useState(false);
+  const [showCaseDialog, setShowCaseDialog] = useState(false);
+  const [caseForm, setCaseForm] = useState({
+    title: "",
+    applicableTags: "",
+    highlightTags: "",
+    notes: ""
+  });
+  const [isAddingCase, setIsAddingCase] = useState(false);
+
+  async function startAgent() {
+    if (isRunning) return;
+    setIsRunning(true);
+    setError("");
+    setResult(null);
+    setStatus("正在生成故事线旁白，并按户型真实动线编排镜头...");
+    try {
+      const response = await fetch("/api/script-agent/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          duration,
+          style,
+          floorplanAnalysis: {
+            schemaVersion: "floorplan-analysis/v1",
+            ...props.recognized
+          },
+          property: props.propertyFacts,
+          enrichedDescription: props.enrichedDescription,
+          propertyRecordId: props.propertyRecordId,
+          factConfirmations: props.factConfirmations,
+          manualHighlights: linesToArray(props.manualHighlightsText)
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "脚本 Agent 启动失败。");
+      setResult(data as PropertyScriptResult);
+      setActiveScriptId(data.scriptId || null);
+      setScriptName(data.scriptName || "");
+      setIsDirty(false);
+      props.onRecordRefresh();
+      setStatus("");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "脚本 Agent 启动失败。");
+      setStatus("");
+    } finally {
+      setIsRunning(false);
+    }
+  }
+
+  function loadSavedScript(script: SavedScript) {
+    if (isDirty && !window.confirm("当前修改尚未保存，确定切换方案吗？")) return;
+    setResult({
+      ...script.result,
+      scenes: script.result.scenes.map((scene) => {
+        const legacy = scene as typeof scene & {
+          shots?: Array<typeof scene.shot>;
+          syncNarration?: string;
+          narration?: string;
+        };
+        const { shots, syncNarration, narration, ...cleanScene } = legacy;
+        return {
+          ...cleanScene,
+          shot: scene.shot || shots?.[0] || {
+          framing: "全景",
+          cameraMove: `从${scene.space}入口稳定前推，呈现空间全貌`,
+          focus: "空间关系",
+          note: ""
+          }
+        };
+      }),
+      scriptId: script.id,
+      scriptName: script.name
+    });
+    setActiveScriptId(script.id);
+    setScriptName(script.name);
+    setRefinementInstruction("");
+    setIsDirty(false);
+    setStatus("");
+  }
+
+  async function saveScript() {
+    if (!props.propertyRecordId || !activeScriptId || !result) return;
+    const response = await fetch(`/api/property-records/${props.propertyRecordId}/scripts/${activeScriptId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: scriptName,
+        result: {
+          ...result,
+          voiceover: result.scenes.map((scene) => scene.storyVoiceover).filter(Boolean).join("\n")
+        }
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      setError(data.error || "保存脚本失败。");
+      return;
+    }
+    setScriptName(data.name);
+    setResult(data.result);
+    setIsDirty(false);
+    setStatus("脚本修改已保存");
+    props.onRecordRefresh();
+  }
+
+  async function deleteScript(scriptId: string) {
+    if (!props.propertyRecordId || (activeScriptId === scriptId && isDirty && !window.confirm("该方案还有未保存修改，确定删除吗？")) || !window.confirm("确定删除这个脚本方案吗？")) return;
+    const response = await fetch(`/api/property-records/${props.propertyRecordId}/scripts/${scriptId}`, { method: "DELETE" });
+    if (!response.ok) return;
+    if (activeScriptId === scriptId) {
+      setActiveScriptId(null);
+      setScriptName("");
+      setResult(null);
+    }
+    props.onRecordRefresh();
+  }
+
+  function updateScene(sceneNumber: number, patch: Partial<PropertyScriptResult["scenes"][number]>) {
+    setIsDirty(true);
+    setResult((current) => current ? {
+      ...current,
+      scenes: current.scenes.map((scene) => scene.sceneNumber === sceneNumber ? { ...scene, ...patch } : scene)
+    } : current);
+  }
+
+  function updateShot(sceneNumber: number, patch: Partial<PropertyScriptResult["scenes"][number]["shot"]>) {
+    setIsDirty(true);
+    setResult((current) => current ? {
+      ...current,
+      scenes: current.scenes.map((scene) => scene.sceneNumber === sceneNumber ? {
+        ...scene,
+        shot: { ...scene.shot, ...patch }
+      } : scene)
+    } : current);
+  }
+
+  async function refineScript() {
+    if (!props.propertyRecordId || !activeScriptId || !refinementInstruction.trim() || isRefining) return;
+    if (isDirty && !window.confirm("润色将以最近一次保存的内容为基础。当前修改尚未保存，是否继续？")) return;
+    setIsRefining(true);
+    setError("");
+    setStatus("正在理解润色方向，并联动重写口播与运镜...");
+    try {
+      const response = await fetch(`/api/property-records/${props.propertyRecordId}/scripts/${activeScriptId}/refine`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ instruction: refinementInstruction.trim() })
+      });
+      const data = await readApiJson(response);
+      if (!response.ok) throw new Error(data.error || "二次润色失败。");
+      setResult({ ...data.result, scriptId: data.id, scriptName: data.name });
+      setActiveScriptId(data.id);
+      setScriptName(data.name);
+      setRefinementInstruction("");
+      setIsDirty(false);
+      setStatus("新版本已生成并保存，原方案仍保留");
+      props.onRecordRefresh();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "二次润色失败。");
+      setStatus("");
+    } finally {
+      setIsRefining(false);
+    }
+  }
+
+  function openCaseDialog() {
+    setCaseForm({
+      title: scriptName,
+      applicableTags: props.recognized.layoutType || "",
+      highlightTags: linesToArray(props.manualHighlightsText).join("，"),
+      notes: ""
+    });
+    setShowCaseDialog(true);
+  }
+
+  async function addToCaseLibrary(event: FormEvent) {
+    event.preventDefault();
+    if (!props.propertyRecordId || !activeScriptId || isAddingCase) return;
+    setIsAddingCase(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/property-records/${props.propertyRecordId}/scripts/${activeScriptId}/skill-cases`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(caseForm)
+      });
+      const data = await readApiJson(response);
+      if (!response.ok) throw new Error(data.error || "加入 Skill 案例库失败。");
+      setShowCaseDialog(false);
+      setStatus(`已沉淀到 Skill 案例库：${data.title}`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "加入 Skill 案例库失败。");
+    } finally {
+      setIsAddingCase(false);
+    }
+  }
+
+  const activeSavedScript = props.savedScripts.find((script) => script.id === activeScriptId);
+  const parentScript = activeSavedScript?.derivedFromScriptId
+    ? props.savedScripts.find((script) => script.id === activeSavedScript.derivedFromScriptId)
+    : null;
+
+  return (
+    <section className="highlight-agent-panel" aria-label="房源视频脚本生成 Agent">
+      <div className="highlight-agent-head">
+        <div>
+          <p className="eyebrow">Agent 2 · Voiceover × Shotlist</p>
+          <h2>房源视频脚本生成 Agent</h2>
+          <p>结合平面图识别结果，先生成故事线旁白，再按真实空间动线生成可执行运镜。</p>
+        </div>
+        <span className="agent-number">02</span>
+      </div>
+
+      <div className="script-controls">
+        <label className="field">
+          <span>成片时长</span>
+          <select value={duration} onChange={(event) => setDuration(Number(event.target.value) as 60 | 90)}>
+            <option value={60}>约 60 秒</option>
+            <option value={90}>约 90 秒</option>
+          </select>
+        </label>
+        <label className="field">
+          <span>故事风格模板</span>
+          <select value={style} onChange={(event) => setStyle(event.target.value)}>
+            <option value="local_highlight">局部亮点型</option>
+            <option value="renovation_ready">装修省心型</option>
+            <option value="owner_story">业主个人叙述型</option>
+            <option value="buyer_dilemma">看房人纠结型</option>
+            <option value="playful">搞笑抽象互动型</option>
+          </select>
+        </label>
+      </div>
+
+      <button className="primary-action" type="button" disabled={isRunning} onClick={startAgent}>
+        {isRunning ? <Loader2 className="spin" size={18} /> : <Sparkles size={18} />}
+        {isRunning ? "正在生成旁白与运镜..." : "生成视频脚本"}
+      </button>
+
+      {props.savedScripts.length > 0 && (
+        <div className="saved-script-strip">
+          <span>已保存方案</span>
+          {props.savedScripts.map((script) => (
+            <div key={script.id} className={script.id === activeScriptId ? "saved-script active" : "saved-script"}>
+              <button type="button" onClick={() => loadSavedScript(script)}>{script.name}</button>
+              <button type="button" aria-label={`删除${script.name}`} onClick={() => deleteScript(script.id)}><Trash2 size={12} /></button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {status && <div className="agent-status"><Loader2 className="spin" size={16} />{status}</div>}
+      {error && <div className="error-message">{error}</div>}
+
+      {result && (
+        <div className="highlight-results script-results">
+          {activeScriptId && (
+            <div className="script-record-editor">
+              <div className="version-identity">
+                <input value={scriptName} onChange={(event) => { setScriptName(event.target.value); setIsDirty(true); }} aria-label="脚本方案名称" />
+                <small>{parentScript ? `源自：${parentScript.name}` : "初始生成方案"}{isDirty ? " · 有未保存修改" : " · 已保存"}</small>
+              </div>
+              <button type="button" className="case-action" onClick={openCaseDialog}><BookOpen size={15} />加入 Skill 案例库</button>
+              <button type="button" onClick={saveScript} disabled={!isDirty}><Save size={15} />保存脚本修改</button>
+            </div>
+          )}
+          {activeScriptId && (
+            <div className="refinement-workbench">
+              <div className="refinement-copy">
+                <span>二次润色</span>
+                <small>保留当前方案，生成一个可独立编辑的新版本</small>
+              </div>
+              <textarea
+                value={refinementInstruction}
+                onChange={(event) => setRefinementInstruction(event.target.value)}
+                placeholder="例如：开头更有冲突感，减少销售话术，加强一家三口入住后的生活画面。"
+                rows={3}
+                disabled={isRefining}
+              />
+              <button type="button" onClick={refineScript} disabled={isRefining || !refinementInstruction.trim()}>
+                {isRefining ? <Loader2 className="spin" size={16} /> : <WandSparkles size={16} />}
+                {isRefining ? "正在润色..." : "生成新版本"}
+              </button>
+            </div>
+          )}
+          <div className="provider-row">
+            <span>内容模型：{result.provider}</span>
+            <span>时长：{result.duration} 秒</span>
+            <span>风格：{result.styleLabel}</span>
+          </div>
+
+          {result.generationTrace && <article className="brief-card generation-trace-card">
+            <div className="card-title"><Database size={18} /><h2>本次口播参考来源</h2></div>
+            <div className="trace-grid">
+              <div>
+                <strong>Skill 规则</strong>
+                <span>{result.generationTrace.skill.path}</span>
+                <small>更新于 {new Date(result.generationTrace.skill.modifiedAt).toLocaleString()} · {result.generationTrace.skill.sha256}</small>
+              </div>
+              <div>
+                <strong>风格参考</strong>
+                <span>{result.generationTrace.reference.path}</span>
+                <small>{result.generationTrace.selectedStyleSection} · {result.generationTrace.reference.sha256}</small>
+              </div>
+            </div>
+            {result.generationTrace.manualHighlights.length > 0 && (
+              <div className="trace-highlight-list">
+                {result.generationTrace.manualHighlights.map((item) => (
+                  <span key={item.highlight} className={item.included ? "included" : "missing"}>
+                    {item.included ? "已覆盖" : "遗漏"} · {item.highlight}
+                  </span>
+                ))}
+              </div>
+            )}
+            {result.generationTrace.matchedCases && result.generationTrace.matchedCases.length > 0 && (
+              <div className="matched-case-list">
+                <strong>本次参考案例</strong>
+                {result.generationTrace.matchedCases.map((item) => <span key={item.caseId}>{item.title}</span>)}
+              </div>
+            )}
+          </article>}
+
+          <article className="brief-card shotlist-card">
+            <div className="card-title"><FileImage size={18} /><h2>旁白 × 运镜完整脚本</h2></div>
+            <label className="script-positioning-editor">
+              <span>故事线定位</span>
+              <textarea
+                value={result.storyPositioning}
+                onChange={(event) => {
+                  setResult((current) => current ? { ...current, storyPositioning: event.target.value } : current);
+                  setIsDirty(true);
+                }}
+                rows={2}
+              />
+            </label>
+            <div className="shot-table-wrap">
+              <table className="shot-table">
+                <thead><tr><th>#</th><th>时长</th><th>空间</th><th>口播故事</th><th>运镜方案</th></tr></thead>
+                <tbody>
+                  {result.scenes.map((scene) => (
+                    <tr key={scene.roomId}>
+                      <td>{scene.sceneNumber}</td>
+                      <td>{scene.durationSeconds} 秒</td>
+                      <td><strong>{scene.space}</strong></td>
+                      <td className="scene-narration">
+                        <div className="story-voiceover-segment">
+                          <b>口播故事</b>
+                          <textarea value={scene.storyVoiceover || ""} onChange={(event) => updateScene(scene.sceneNumber, {
+                            storyVoiceover: event.target.value
+                          })} rows={5} />
+                        </div>
+                      </td>
+                      <td>
+                        <div className="camera-plan-list">
+                          <div>
+                            <input value={scene.shot.framing} onChange={(event) => updateShot(scene.sceneNumber, { framing: event.target.value })} aria-label={`${scene.space}景别`} />
+                            <textarea value={scene.shot.cameraMove} onChange={(event) => updateShot(scene.sceneNumber, { cameraMove: event.target.value })} rows={3} />
+                            <input value={scene.shot.focus} onChange={(event) => updateShot(scene.sceneNumber, { focus: event.target.value })} aria-label={`${scene.space}镜头重点`} />
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          {[...result.pendingConfirmations, ...result.onSiteConfirmations].length > 0 && (
+            <article className="brief-card warning-card">
+              <h3>现场确认项</h3>
+              <div className="pending-chip-list">
+                {Array.from(new Set([...result.pendingConfirmations, ...result.onSiteConfirmations])).map((item) => (
+                  <span key={item}>{item}</span>
+                ))}
+              </div>
+            </article>
+          )}
+        </div>
+      )}
+      {showCaseDialog && (
+        <div className="dialog-backdrop" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setShowCaseDialog(false);
+        }}>
+          <form className="case-dialog" role="dialog" aria-modal="true" aria-labelledby="case-dialog-title" onSubmit={addToCaseLibrary}>
+            <div className="case-dialog-head">
+              <div>
+                <small>RESIDENTIAL STORY VOICEOVER</small>
+                <h2 id="case-dialog-title">沉淀为 Skill 案例</h2>
+              </div>
+              <button type="button" aria-label="关闭" onClick={() => setShowCaseDialog(false)}><X size={18} /></button>
+            </div>
+            <p>保存当前成稿快照。后续生成会按风格、户型和标签自动选择相关案例。</p>
+            <label><span>案例标题</span><input required value={caseForm.title} onChange={(event) => setCaseForm({ ...caseForm, title: event.target.value })} /></label>
+            <label><span>适用户型 / 场景标签</span><input required placeholder="三居室，改善家庭，通勤" value={caseForm.applicableTags} onChange={(event) => setCaseForm({ ...caseForm, applicableTags: event.target.value })} /></label>
+            <label><span>核心亮点标签</span><input required placeholder="采光，洄游动线，收纳" value={caseForm.highlightTags} onChange={(event) => setCaseForm({ ...caseForm, highlightTags: event.target.value })} /></label>
+            <label><span>案例备注</span><textarea rows={3} placeholder="记录这个案例为什么有效，以及适合如何复用。" value={caseForm.notes} onChange={(event) => setCaseForm({ ...caseForm, notes: event.target.value })} /></label>
+            <div className="case-dialog-actions">
+              <button type="button" onClick={() => setShowCaseDialog(false)}>取消</button>
+              <button type="submit" disabled={isAddingCase}>{isAddingCase ? <Loader2 className="spin" size={16} /> : <BookOpen size={16} />}确认入库</button>
+            </div>
+          </form>
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -520,6 +1796,7 @@ function AnnotationMode(props: {
   isSaving: boolean;
   roomSummary: string;
   selectedConnectionRoomId: string | null;
+  pendingReview: PendingReview | null;
   onSelectCase: (image: BenchmarkImage) => void;
   onAnalyzeCase: () => void;
   onFamilyTypeChange: (value: string) => void;
@@ -527,9 +1804,15 @@ function AnnotationMode(props: {
   onUpdateEditable: (patch: Partial<RecognizedFloorplan>) => void;
   onUpdateFeature: (key: string, value: string) => void;
   onToggleLabel: (section: LabelSection, id: string) => void;
+  onAddLabel: (section: LabelSection, label: string) => void;
+  onDeleteLabel: (section: LabelSection, id: string) => void;
+  onAddRoom: () => void;
+  onUpdateRoom: (roomId: string, patch: Partial<Room>) => void;
+  onDeleteRoom: (roomId: string) => void;
   onToggleRoomConnection: (roomId: string) => void;
   onRegenerateBrief: () => void;
   onSave: () => void;
+  onResumeReview: (action: "edit" | "approve") => void;
 }) {
   return (
     <>
@@ -585,9 +1868,27 @@ function AnnotationMode(props: {
               onUpdateEditable={props.onUpdateEditable}
               onUpdateFeature={props.onUpdateFeature}
               onToggleLabel={props.onToggleLabel}
+              onAddLabel={props.onAddLabel}
+              onDeleteLabel={props.onDeleteLabel}
+              onAddRoom={props.onAddRoom}
+              onUpdateRoom={props.onUpdateRoom}
+              onDeleteRoom={props.onDeleteRoom}
               onToggleRoomConnection={props.onToggleRoomConnection}
             />
             <div className="annotation-actions">
+              {props.pendingReview && (
+                <>
+                  <button type="button" onClick={() => props.onResumeReview("edit")} disabled={props.isLoading}>
+                    {props.isLoading ? <Loader2 className="spin" size={16} /> : <BadgeCheck size={16} />}
+                    提交修正并继续
+                  </button>
+                  {props.pendingReview.review.stage === "highlights" && (
+                    <button type="button" onClick={() => props.onResumeReview("approve")} disabled={props.isLoading}>
+                      人工确认保留
+                    </button>
+                  )}
+                </>
+              )}
               <button type="button" onClick={props.onRegenerateBrief} disabled={props.isLoading}>
                 {props.isLoading ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />}
                 重新生成讲解
@@ -700,13 +2001,18 @@ function EditorPanel(props: {
   onUpdateEditable: (patch: Partial<RecognizedFloorplan>) => void;
   onUpdateFeature: (key: string, value: string) => void;
   onToggleLabel: (section: LabelSection, id: string) => void;
+  onAddLabel: (section: LabelSection, label: string) => void;
+  onDeleteLabel: (section: LabelSection, id: string) => void;
+  onAddRoom: () => void;
+  onUpdateRoom: (roomId: string, patch: Partial<Room>) => void;
+  onDeleteRoom: (roomId: string) => void;
   onToggleRoomConnection: (roomId: string) => void;
 }) {
   return (
     <article className="editor-panel">
       <div className="recognition-head">
         <h2>识图结果校正</h2>
-        <p>只改标准化判断，房间列表先展示不编辑。</p>
+        <p>标签、房间和连接关系都可以在这里校准，保存后会写入 benchmark。</p>
       </div>
       <div className="edit-grid">
         <label className="field">
@@ -751,14 +2057,32 @@ function EditorPanel(props: {
         ))}
       </div>
 
-      <LabelSelector title="核心卖点 pros" section="pros" taxonomy={props.taxonomy} selected={props.recognized.pros ?? []} onToggle={props.onToggleLabel} />
-      <LabelSelector title="短板 cons" section="cons" taxonomy={props.taxonomy} selected={props.recognized.cons ?? []} onToggle={props.onToggleLabel} />
+      <LabelSelector
+        title="核心卖点 pros"
+        section="pros"
+        taxonomy={props.taxonomy}
+        selected={props.recognized.pros ?? []}
+        onToggle={props.onToggleLabel}
+        onAdd={props.onAddLabel}
+        onDelete={props.onDeleteLabel}
+      />
+      <LabelSelector
+        title="短板 cons"
+        section="cons"
+        taxonomy={props.taxonomy}
+        selected={props.recognized.cons ?? []}
+        onToggle={props.onToggleLabel}
+        onAdd={props.onAddLabel}
+        onDelete={props.onDeleteLabel}
+      />
       <LabelSelector
         title="适合人群 suitableFor"
         section="suitableFor"
         taxonomy={props.taxonomy}
         selected={props.recognized.suitableFor ?? []}
         onToggle={props.onToggleLabel}
+        onAdd={props.onAddLabel}
+        onDelete={props.onDeleteLabel}
       />
 
       <div className="edit-grid">
@@ -781,6 +2105,9 @@ function EditorPanel(props: {
       <RoomConnectionGraph
         rooms={props.recognized.rooms ?? []}
         selectedRoomId={props.selectedConnectionRoomId}
+        onAddRoom={props.onAddRoom}
+        onUpdateRoom={props.onUpdateRoom}
+        onDeleteRoom={props.onDeleteRoom}
         onToggleConnection={props.onToggleRoomConnection}
       />
     </article>
@@ -793,21 +2120,50 @@ function LabelSelector(props: {
   taxonomy: LabelTaxonomy;
   selected: string[];
   onToggle: (section: LabelSection, id: string) => void;
+  onAdd: (section: LabelSection, label: string) => void;
+  onDelete: (section: LabelSection, id: string) => void;
 }) {
+  const [draftLabel, setDraftLabel] = useState("");
+
+  function submitNewLabel(event: FormEvent) {
+    event.preventDefault();
+    const label = draftLabel.trim();
+    if (!label) return;
+    props.onAdd(props.section, label);
+    setDraftLabel("");
+  }
+
   return (
     <div className="label-selector">
-      <h3>{props.title}</h3>
+      <div className="label-admin">
+        <h3>{props.title}</h3>
+        <form className="label-add" onSubmit={submitNewLabel}>
+          <input
+            value={draftLabel}
+            onChange={(event) => setDraftLabel(event.target.value)}
+            placeholder="新增标准标签"
+          />
+          <button type="submit" aria-label={`新增 ${props.title} 标签`}>
+            <Plus size={15} />
+          </button>
+        </form>
+      </div>
       <div className="label-grid">
         {props.taxonomy[props.section].map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={props.selected.includes(item.id) ? "selected" : ""}
-            onClick={() => props.onToggle(props.section, item.id)}
-          >
-            <b>{item.label}</b>
-            <span>{item.id}</span>
-          </button>
+          <div key={item.id} className={`label-card ${props.selected.includes(item.id) ? "selected" : ""}`}>
+            <button type="button" className="label-pick" onClick={() => props.onToggle(props.section, item.id)}>
+              <b>{item.label}</b>
+              <span>{item.id}</span>
+            </button>
+            <button
+              type="button"
+              className="label-delete"
+              aria-label={`删除标签 ${item.label}`}
+              onClick={() => props.onDelete(props.section, item.id)}
+            >
+              <Trash2 size={13} />
+            </button>
+          </div>
         ))}
       </div>
     </div>
@@ -817,6 +2173,9 @@ function LabelSelector(props: {
 function RoomConnectionGraph(props: {
   rooms: Room[];
   selectedRoomId: string | null;
+  onAddRoom: () => void;
+  onUpdateRoom: (roomId: string, patch: Partial<Room>) => void;
+  onDeleteRoom: (roomId: string) => void;
   onToggleConnection: (roomId: string) => void;
 }) {
   const rooms = props.rooms.filter((room) => room.id);
@@ -852,7 +2211,13 @@ function RoomConnectionGraph(props: {
               : "点击两个房间建立或取消连接"}
           </p>
         </div>
-        <span>{edges.size} 条连接</span>
+        <div className="connection-actions">
+          <span>{edges.size} 条连接</span>
+          <button type="button" onClick={props.onAddRoom}>
+            <Plus size={15} />
+            新增房间
+          </button>
+        </div>
       </div>
 
       <div className="connection-canvas">
@@ -893,10 +2258,69 @@ function RoomConnectionGraph(props: {
 
       <div className="connection-list">
         {rooms.map((room) => (
-          <p key={room.id}>
-            <b>{room.name || room.type}</b>
-            <span>{(room.connectedTo ?? []).filter((id) => byId.has(id)).join("、") || "未连接"}</span>
-          </p>
+          <div key={room.id} className="room-edit-row">
+            <div className="room-edit-title">
+              <b>{room.id}</b>
+              <button type="button" aria-label={`删除 ${room.name || room.id}`} onClick={() => props.onDeleteRoom(room.id)}>
+                <Trash2 size={14} />
+              </button>
+            </div>
+            <div className="room-edit-fields">
+              <label>
+                <span>名称</span>
+                <input
+                  value={room.name ?? ""}
+                  onChange={(event) => props.onUpdateRoom(room.id, { name: event.target.value })}
+                />
+              </label>
+              <label>
+                <span>类型</span>
+                <select value={room.type || "unknown"} onChange={(event) => props.onUpdateRoom(room.id, { type: event.target.value })}>
+                  {roomTypeOptions.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>位置</span>
+                <input
+                  value={room.position ?? ""}
+                  onChange={(event) => props.onUpdateRoom(room.id, { position: event.target.value })}
+                />
+              </label>
+              <label>
+                <span>采光</span>
+                <select value={room.light || "unknown"} onChange={(event) => props.onUpdateRoom(room.id, { light: event.target.value })}>
+                  {roomLightOptions.map((light) => (
+                    <option key={light} value={light}>
+                      {light}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>窗</span>
+                <select
+                  value={room.hasWindow === true ? "true" : room.hasWindow === false ? "false" : "unknown"}
+                  onChange={(event) =>
+                    props.onUpdateRoom(room.id, {
+                      hasWindow:
+                        event.target.value === "unknown"
+                          ? "unknown"
+                          : event.target.value === "true"
+                    })
+                  }
+                >
+                  <option value="true">有窗</option>
+                  <option value="false">无窗</option>
+                  <option value="unknown">未知</option>
+                </select>
+              </label>
+            </div>
+            <p>{(room.connectedTo ?? []).filter((id) => byId.has(id)).join("、") || "未连接"}</p>
+          </div>
         ))}
       </div>
     </div>
@@ -923,7 +2347,12 @@ function OutputPanel(props: {
   }
 
   return (
-    <section className={props.compact ? "nested-output" : "output-panel"} aria-label="讲解输出">
+    <section
+      className={[
+        props.compact ? "nested-output" : "output-panel"
+      ].filter(Boolean).join(" ")}
+      aria-label="讲解输出"
+    >
       {props.isLoading && (
         <div className="loading-card">
           <Loader2 className="spin" size={30} />
@@ -936,8 +2365,55 @@ function OutputPanel(props: {
         <>
           <div className="provider-row">
             <span>识图：{props.result.provider.vision ?? "manual"}</span>
+            <span>房源描述：{props.result.provider.description ?? "fallback"}</span>
             <span>讲解：{props.result.provider.brief}</span>
           </div>
+
+          <div className="description-grid">
+            <article className="brief-card objective-description">
+              <div className="card-title">
+                <Home size={18} />
+                <h2>基础房源客观描述</h2>
+              </div>
+              <p>{props.result.objectiveDescription || "客观描述待生成。"}</p>
+              <small>仅使用人工填写的房源事实与平面图识别结果。</small>
+            </article>
+
+            <article className="brief-card enriched-description">
+              <div className="card-title">
+                <BadgeCheck size={18} />
+                <h2>加入人工补充后的描述</h2>
+              </div>
+              <p>{props.result.enrichedDescription || props.result.objectiveDescription || "补充描述待生成。"}</p>
+              <small>人工补充内容不作为识图结论，并建议结合现场或材料核验。</small>
+            </article>
+          </div>
+
+          {props.result.warnings && props.result.warnings.length > 0 && (
+            <article className="brief-card pending-facts">
+              <div className="card-title">
+                <AlertTriangle size={18} />
+                <h2>待确认信息</h2>
+              </div>
+              <div className="pending-chip-list">
+                {props.result.warnings.map((warning) => <span key={warning}>{warning}</span>)}
+              </div>
+            </article>
+          )}
+
+          {props.result.manualHighlights && props.result.manualHighlights.length > 0 && (
+            <article className="brief-card">
+              <div className="card-title">
+                <BadgeCheck size={18} />
+                <h2>人工补充亮点</h2>
+              </div>
+              <ul>
+                {props.result.manualHighlights.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+          )}
 
           <article className="brief-card hero-brief">
             <div className="card-title">

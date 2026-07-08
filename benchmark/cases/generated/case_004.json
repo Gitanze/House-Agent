@@ -1,0 +1,194 @@
+[
+  {
+    "id": "case_004",
+    "title": "case_004 人工复核",
+    "imagePath": "benchmark/images/case_004.jpg",
+    "layoutType": "3室2厅3卫",
+    "area": "213㎡",
+    "orientation": "南",
+    "rooms": [
+      {
+        "id": "living_room",
+        "type": "living_room",
+        "name": "客厅",
+        "position": "中间南侧",
+        "connectedTo": [
+          "kitchen",
+          "bedroom_3",
+          "bathroom_1",
+          "bedroom_2",
+          "bedroom_1",
+          "bathroom_2",
+          "study"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "dining_room",
+        "type": "dining_room",
+        "name": "餐厅",
+        "position": "北侧中部",
+        "connectedTo": [
+          "kitchen"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "kitchen",
+        "type": "kitchen",
+        "name": "厨房",
+        "position": "西北侧",
+        "connectedTo": [
+          "dining_room",
+          "living_room",
+          "bedroom_4"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "balcony",
+        "type": "balcony",
+        "name": "阳台1",
+        "position": "南侧中部",
+        "connectedTo": [],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_1",
+        "type": "bedroom",
+        "name": "卧室",
+        "position": "西北侧",
+        "connectedTo": [
+          "bathroom_1",
+          "living_room",
+          "bathroom_3"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bathroom_1",
+        "type": "bathroom",
+        "name": "卫生间1",
+        "position": "西北侧",
+        "connectedTo": [
+          "bedroom_1",
+          "living_room"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_2",
+        "type": "primary_bedroom",
+        "name": "主卧",
+        "position": "西侧中部",
+        "connectedTo": [
+          "living_room"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bathroom_2",
+        "type": "bathroom",
+        "name": "卫生间2",
+        "position": "西侧中部",
+        "connectedTo": [
+          "living_room"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_3",
+        "type": "bedroom",
+        "name": "卧室",
+        "position": "东北侧",
+        "connectedTo": [
+          "living_room",
+          "room_13"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bedroom_4",
+        "type": "bedroom",
+        "name": "卧室",
+        "position": "东南侧",
+        "connectedTo": [
+          "kitchen"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bathroom_3",
+        "type": "bathroom",
+        "name": "卫生间3",
+        "position": "东侧中部",
+        "connectedTo": [
+          "bedroom_1"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "study",
+        "type": "study",
+        "name": "书房",
+        "position": "东北侧中部",
+        "connectedTo": [
+          "living_room"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "room_13",
+        "type": "balcony",
+        "name": "阳台2",
+        "position": "北侧",
+        "connectedTo": [
+          "bedroom_3"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      }
+    ],
+    "features": {
+      "northSouthVentilation": true,
+      "dynamicStaticZoning": "good",
+      "kitchenDiningFlow": "good",
+      "bathroomPressure": "low",
+      "lighting": "good",
+      "storagePotential": "good"
+    },
+    "pros": [
+      "kitchen_dining_flow_good",
+      "large_living_room",
+      "living_balcony_connected",
+      "open_living_dining",
+      "good_lighting",
+      "large_kitchen",
+      "storage_good",
+      "multi_bedroom_flexible",
+      "dual_bathroom_convenient"
+    ],
+    "cons": [],
+    "suitableFor": [
+      "improvement_family",
+      "multi_room_need",
+      "three_person_family",
+      "multi_generation_family"
+    ],
+    "unknowns": [],
+    "needsReview": [],
+    "notes": "由半自动标注台保存"
+  }
+]

@@ -1,0 +1,4 @@
+interface:
+  display_name: "住宅空间视频分镜"
+  short_description: "按户型生成景别、空间与运镜拍摄清单"
+  default_prompt: "使用 $residential-video-shotlist 根据这套户型生成完整的住宅视频拍摄分镜表。"

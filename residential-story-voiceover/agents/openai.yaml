@@ -1,0 +1,4 @@
+interface:
+  display_name: "房产故事线旁白"
+  short_description: "创作自然口语的房产短视频故事旁白"
+  default_prompt: "使用 $residential-story-voiceover 根据这套房源资料写一条约1分钟的故事线旁白。"

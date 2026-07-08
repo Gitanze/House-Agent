@@ -1,0 +1,530 @@
+[
+  {
+    "caseId": "e61b5548-48a8-4470-9b8a-1b5eb55055a1",
+    "title": "业主个人叙述型1-60秒",
+    "style": "owner_story",
+    "styleLabel": "小户型-业主个人叙述型",
+    "duration": 60,
+    "applicableTags": [
+      "3室1厅1卫"
+    ],
+    "highlightTags": [
+      "采光",
+      "改造"
+    ],
+    "notes": "从业主个人视角触发，聚焦卧室改客厅的核心特点展开叙述，语气自然，叙述节奏好，可作为个人叙述型的参考",
+    "layoutType": "3室1厅1卫",
+    "sourceRecordId": "9e8f706e-7ce8-4c92-8d4a-a8d44c962a30",
+    "sourceScriptId": "4fb67b68-bf85-4744-8d01-da982d5fad3d",
+    "addedAt": "2026-07-07T04:18:57.320Z",
+    "storyPositioning": "90平三室，把南向卧室改成客厅，生活动线反而更舒服",
+    "voiceover": "走之前，最后再好好记录一下这个家。\n当初买房时，户型是标准的三室一厅，90平。\n但原户型只有一个朝北的客厅，再加餐桌很拥挤。\n所以做了个大胆的决定：\n我们把南向最大的卧室改成了客厅。\n原来的客厅，现在成了餐厅。\n进门后，先经过餐厅，左手是厨房。\n厨房是U型橱柜，转身就能拿东西。\n卫生间在这边，虽然是暗卫，但装了强力排风扇。\n往前走，就是朝南的客厅了。\n下午阳光能晒满整个沙发。\n我们经常窝在沙发上，边看电视边喝茶。\n阳台装了伸缩晾衣杆，洗完衣服顺手就挂。\n另外还有两个南向卧室，采光很好。\n一间我俩住，还够摆个躺椅晒晒太阳。\n一间给孩子，阳台加了书桌，在这学习很亮堂。\n看着这个充满回忆的地方很不舍。\n但现在孩子也长大了，我们的生活也发生了变化。\n还是决定给这套房子寻找一个新的主人。\n再见啦，承载着我们太多回忆的小家。",
+    "scenes": [
+      {
+        "sceneNumber": 1,
+        "durationSeconds": 6,
+        "roomId": "living_room",
+        "space": "客厅",
+        "storyVoiceover": "走之前，最后再好好记录一下这个家。\n当初买房时，户型是标准的三室一厅，90平。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从入户门处稳定前推，展示改造后的餐厅空间，左右两侧可见厨房和卫生间入口",
+          "focus": "空间关系",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 2,
+        "durationSeconds": 7,
+        "roomId": "kitchen",
+        "space": "厨房",
+        "storyVoiceover": "但原户型只有一个朝北的客厅，再加餐桌很拥挤。\n所以做了个大胆的决定：\n我们把南向最大的卧室改成了客厅。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从餐厅左转进入厨房，沿U型橱柜水平移动，展示操作台面和储物空间",
+          "focus": "细节",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 3,
+        "durationSeconds": 5,
+        "roomId": "bathroom",
+        "space": "卫生间",
+        "storyVoiceover": "原来的客厅，现在成了餐厅。\n进门后，先经过餐厅，左手是厨房。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从餐厅右转进入卫生间，镜头环视一周，强调暗卫的排风扇和干湿分离设计",
+          "focus": "细节",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 4,
+        "durationSeconds": 9,
+        "roomId": "bedroom_b",
+        "space": "卧室B",
+        "storyVoiceover": "厨房是U型橱柜，转身就能拿东西。\n卫生间在这边，虽然是暗卫，但装了强力排风扇。\n往前走，就是朝南的客厅了。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从餐厅进入卧室B，展示书房与健身区域的布局",
+          "focus": "空间关系",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 5,
+        "durationSeconds": 6,
+        "roomId": "bedroom_c",
+        "space": "卧室C",
+        "storyVoiceover": "下午阳光能晒满整个沙发。\n我们经常窝在沙发上，边看电视边喝茶。\n阳台装了伸缩晾衣杆，洗完衣服顺手就挂。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从餐厅向前进入客厅，镜头跟随阳光移动，聚焦浅灰绿色沙发和电视墙",
+          "focus": "空间关系",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 6,
+        "durationSeconds": 10,
+        "roomId": "bedroom_a",
+        "space": "卧室A",
+        "storyVoiceover": "另外还有两个南向卧室，采光很好。\n一间我俩住，还够摆个躺椅晒晒太阳。\n一间给孩子，阳台加了书桌，在这学习很亮堂。\n看着这个充满回忆的地方很不舍。\n但现在孩子也长大了，我们的生活也发生了变化。\n还是决定给这套房子寻找一个新的主人。\n再见啦，承载着我们太多回忆的小家。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从餐厅进入卧室A，展示主卧空间及通向阳台B的推拉门",
+          "focus": "空间关系",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 7,
+        "durationSeconds": 6,
+        "roomId": "balcony_a",
+        "space": "阳台A",
+        "storyVoiceover": "",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从客厅推拉门走出至阳台A，展示室外景色与阳台空间",
+          "focus": "空间关系",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 8,
+        "durationSeconds": 11,
+        "roomId": "balcony_b",
+        "space": "阳台B",
+        "storyVoiceover": "",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从卧室A走出至阳台B，镜头聚焦伸缩晾衣杆和窗外景色",
+          "focus": "细节",
+          "note": ""
+        }
+      }
+    ]
+  },
+  {
+    "caseId": "83cedd87-abfc-42be-bb7f-e1d7064a9ab9",
+    "title": "小户型-业主个人叙述型-60秒",
+    "style": "owner_story",
+    "styleLabel": "业主个人叙述型",
+    "duration": 60,
+    "applicableTags": [
+      "2室1厅1卫1厨"
+    ],
+    "highlightTags": [
+      "精装修",
+      "全屋智能",
+      "领包入住",
+      "次卧改成了衣帽间"
+    ],
+    "notes": "适合业主个人叙述视角，以改造为核心亮点，语言自然，逻辑通顺",
+    "layoutType": "2室1厅1卫1厨",
+    "sourceRecordId": "65aa6eb1-ed9c-4745-b2b1-bfbcf441e543",
+    "sourceScriptId": "a16a8800-ffb1-4df1-bfda-660c083f4013",
+    "addedAt": "2026-07-07T06:10:43.332Z",
+    "storyPositioning": "自己花心思装修的家，每一处细节都藏着对生活的讲究。",
+    "voiceover": "再记录一下我在北京的第一个小家。\n当初看上了这个方正清爽的户型。\n整整半年，跑装修市场、盯工人、选材料。\n现在回想起来，那段时间真是又累又兴奋。\n最让我花心思的，是那个衣帽间。\n原本的次卧，我改成了独立的步入式衣帽间。\n三面墙的柜子，带灯光的层架，玻璃展示柜。\n包包、鞋子、饰品都有专属位置。\n每天早上选衣服都仪式感满满。\n除了衣帽间，全屋智能也是我重点投入的。\n全屋都是无主光的灯光设计，很有氛围感。\n回家有红外感应，灯光自动亮起。\n客厅的大落地窗，让整个家都亮堂堂的。\n周末坐在沙发上，看窗外绿植。\n厨房不大，但家电都配齐了。\n约朋友来吃饭，从准备到收拾都很轻松。\n主卧那张软包床，睡起来很舒服，床头插座这些也是设计过的。\n卫生间装了智能马桶，镜子自带美颜光。\n两个阳台，一个晾衣服放杂物，一个完全留给生活。\n在这也住了好多年，每次回家都很踏实。\n装修时流的汗，都变成了日常的舒服。\n可惜我现在也要离开北京了，希望下一个有缘人可以好好对待这个小家。",
+    "scenes": [
+      {
+        "sceneNumber": 1,
+        "durationSeconds": 8,
+        "roomId": "kitchen",
+        "space": "厨房",
+        "storyVoiceover": "再记录一下我在北京的第一个小家。\n当初看上了这个方正清爽的户型。\n整整半年，跑装修市场、盯工人、选材料。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从厨房门口进入，沿操作台移动，依次展示装修时安装的炉灶、水槽、烤箱及定制橱柜",
+          "focus": "功能布局",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 2,
+        "durationSeconds": 9,
+        "roomId": "bedroom_a",
+        "space": "卧室A",
+        "storyVoiceover": "现在回想起来，那段时间真是又累又兴奋。\n最让我花心思的，是那个衣帽间。\n原本的次卧，我改成了独立的步入式衣帽间。\n三面墙的柜子，带灯光的层架，玻璃展示柜。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从衣帽间门口进入，镜头平滑扫视三面定制柜体，最后定格在带灯光的层架，展示装修用心",
+          "focus": "收纳展示",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 3,
+        "durationSeconds": 9,
+        "roomId": "bedroom_b",
+        "space": "卧室B",
+        "storyVoiceover": "包包、鞋子、饰品都有专属位置。\n每天早上选衣服都仪式感满满。\n除了衣帽间，全屋智能也是我重点投入的。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从卧室门口缓步进入，镜头对准窗户方向推进，展现装修后的软包床和窗帘",
+          "focus": "休息区",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 4,
+        "durationSeconds": 7,
+        "roomId": "living_room",
+        "space": "客厅",
+        "storyVoiceover": "全屋都是无主光的灯光设计，很有氛围感。\n回家有红外感应，灯光自动亮起。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从入户门稳定前推，逐步呈现客厅全貌，展示装修后的落地窗与沙发区",
+          "focus": "空间关系",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 5,
+        "durationSeconds": 9,
+        "roomId": "bathroom",
+        "space": "卫生间",
+        "storyVoiceover": "客厅的大落地窗，让整个家都亮堂堂的。\n周末坐在沙发上，看窗外绿植。\n厨房不大，但家电都配齐了。\n约朋友来吃饭，从准备到收拾都很轻松。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从卫生间门口进入，镜头平移展示装修后安装的洗手台背光镜，然后转向智能马桶",
+          "focus": "卫浴设施",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 6,
+        "durationSeconds": 9,
+        "roomId": "balcony_a",
+        "space": "阳台A",
+        "storyVoiceover": "主卧那张软包床，睡起来很舒服，床头插座这些也是设计过的。\n卫生间装了智能马桶，镜子自带美颜光。\n两个阳台，一个晾衣服放杂物，一个完全留给生活。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从阳台门口进入，镜头仰视展示装修时安装的伸缩晾衣杆，然后下移展示收纳柜",
+          "focus": "晾晒收纳",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 7,
+        "durationSeconds": 9,
+        "roomId": "balcony_b",
+        "space": "阳台B",
+        "storyVoiceover": "在这也住了好多年，每次回家都很踏实。\n装修时流的汗，都变成了日常的舒服。\n可惜我现在也要离开北京了，希望下一个有缘人可以好好对待这个小家。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从客厅与阳台B的门口进入，镜头向前推进展示大面积落地玻璃窗，强调采光",
+          "focus": "空间连通",
+          "note": ""
+        }
+      }
+    ]
+  },
+  {
+    "caseId": "3c545fff-707f-47c8-8edd-1c06a2dfe2e8",
+    "title": "大户型-业主个人叙述型-90秒",
+    "style": "owner_story",
+    "styleLabel": "业主个人叙述型",
+    "duration": 90,
+    "applicableTags": [
+      "3室2厅4卫"
+    ],
+    "highlightTags": [
+      "三间套房均有独立卫生间",
+      "客厅大面宽5.2米",
+      "层高2.9米",
+      "保姆间打通变身超大开放式厨房"
+    ],
+    "notes": "生活化叙述把握良好，整体描述有氛围感，适合业主个人叙述风格",
+    "layoutType": "3室2厅4卫",
+    "sourceRecordId": "3e5e01da-0c65-4d01-817e-3daa7d3533d5",
+    "sourceScriptId": "67732cd9-ac6c-402d-bf80-36e55abb1053",
+    "addedAt": "2026-07-07T06:33:50.741Z",
+    "storyPositioning": "告别自己精心挑选和改造的大平层，每一处空间都记录着与家人共处的温馨时光。",
+    "voiceover": "走之前，最后再好好记录一下这个家。\n当初第一眼就看上了这个户型。\n三间卧室各自带独立卫生间。\n不用抢厕所，早上能多睡十分钟。\n客厅面宽五米二，层高接近三米。\n阳光能一直晒到餐桌。\n周末我们最喜欢窝在沙发里喝茶。\n厨房是后来把保姆间打通改的。\n变成了一个超大的开放式厨房。\n转身就能拿到所有东西。\n孩子最爱在这里做烘焙。\n整个家都飘着香味。\n主卧带一个步入式衣帽间。\n衣柜按我和太太的分区设计。\n他挂西装，我放裙子，互不打扰。\n卫生间干湿分离，早上一起洗漱也不挤。\n另一间卧室留给父母。\n他们来住的时候，有自己的卫浴。\n不用穿过整个家。\n最靠里那间是孩子的房间。\n阳台外面能看星星。\n他经常会搬个小凳子坐着发呆。\n储物间在厨房旁边。\n乱七八糟的杂物都往里塞。\n门一关，家里永远整洁。\n住了几年，每个角落都熟悉了。\n但现在孩子大了，我们也需要换个环境。\n行李已经打包好了。\n空荡荡的客厅，阳光还是会照进来。\n希望下一任主人也能在这里找到幸福。",
+    "scenes": [
+      {
+        "sceneNumber": 1,
+        "durationSeconds": 4,
+        "roomId": "living_room",
+        "space": "客厅",
+        "storyVoiceover": "走之前，最后再好好记录一下这个家。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从阳台返回，穿过卧室C进入客厅，相机后拉升高，展示客厅全貌与阳台B",
+          "focus": "公共区域",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 2,
+        "durationSeconds": 6,
+        "roomId": "dining_room",
+        "space": "餐厅",
+        "storyVoiceover": "当初第一眼就看上了这个户型。\n三间卧室各自带独立卫生间。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从门厅步入后，相机左转平移，展现餐厅全貌及与厨房的连通",
+          "focus": "餐厨一体",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 3,
+        "durationSeconds": 3,
+        "roomId": "kitchen",
+        "space": "厨房",
+        "storyVoiceover": "不用抢厕所，早上能多睡十分钟。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从餐厅走向厨房，相机稳定前推，展示开放式厨房操作台与储物",
+          "focus": "操作动线",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 4,
+        "durationSeconds": 6,
+        "roomId": "bedroom_a",
+        "space": "卧室A",
+        "storyVoiceover": "客厅面宽五米二，层高接近三米。\n阳光能一直晒到餐桌。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从过道A进入卧室A，相机稳定推进至窗前，展示南向采光",
+          "focus": "父母房布局",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 5,
+        "durationSeconds": 3,
+        "roomId": "bedroom_b",
+        "space": "卧室B",
+        "storyVoiceover": "周末我们最喜欢窝在沙发里喝茶。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "从卫生间B进入主卧，相机从左至右横移，展示大床、窗户与衣帽间门",
+          "focus": "主卧空间",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 6,
+        "durationSeconds": 6,
+        "roomId": "bedroom_c",
+        "space": "卧室C",
+        "storyVoiceover": "厨房是后来把保姆间打通改的。\n变成了一个超大的开放式厨房。",
+        "shot": {
+          "framing": "全景",
+          "cameraMove": "进入卧室C，相机向前推进至阳台门前，展示室内与阳台的连通",
+          "focus": "儿童房与阳台",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 7,
+        "durationSeconds": 3,
+        "roomId": "bathroom_a",
+        "space": "卫生间A",
+        "storyVoiceover": "转身就能拿到所有东西。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从卧室A门口侧移进入卫生间A，展示洗漱区与马桶区",
+          "focus": "私密卫浴",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 8,
+        "durationSeconds": 5,
+        "roomId": "bathroom_b",
+        "space": "卫生间B",
+        "storyVoiceover": "孩子最爱在这里做烘焙。\n整个家都飘着香味。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从衣帽间A后门进入卫生间B，镜头展示双台盆与淋浴区",
+          "focus": "干湿分离",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 9,
+        "durationSeconds": 3,
+        "roomId": "bathroom_c",
+        "space": "卫生间C",
+        "storyVoiceover": "主卧带一个步入式衣帽间。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从衣帽间B进入卫生间C，镜头展示淋浴房与马桶区",
+          "focus": "紧凑卫浴",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 10,
+        "durationSeconds": 6,
+        "roomId": "bathroom_d",
+        "space": "卫生间D",
+        "storyVoiceover": "衣柜按我和太太的分区设计。\n他挂西装，我放裙子，互不打扰。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "在过道D处右转进入卫生间D，镜头展示洗手台与淋浴区",
+          "focus": "干湿分离",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 11,
+        "durationSeconds": 4,
+        "roomId": "closet_a",
+        "space": "衣帽间A",
+        "storyVoiceover": "卫生间干湿分离，早上一起洗漱也不挤。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "进入衣帽间A，镜头平摇展示两侧挂衣区及分区设计",
+          "focus": "男女分区",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 12,
+        "durationSeconds": 6,
+        "roomId": "closet_b",
+        "space": "衣帽间B",
+        "storyVoiceover": "另一间卧室留给父母。\n他们来住的时候，有自己的卫浴。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从卧室C侧门进入衣帽间B，镜头展示定制柜体与收纳",
+          "focus": "小型衣帽间",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 13,
+        "durationSeconds": 3,
+        "roomId": "entrance",
+        "space": "门厅",
+        "storyVoiceover": "不用穿过整个家。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从入户门外缓慢推进，穿越门洞，展示门厅与餐厅的视线关系",
+          "focus": "空间过渡",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 14,
+        "durationSeconds": 5,
+        "roomId": "corridor_a",
+        "space": "过道A",
+        "storyVoiceover": "最靠里那间是孩子的房间。\n阳台外面能看星星。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "退出卫生间D，沿过道A左转，相机后拉展示左侧卧室和卫生间入口",
+          "focus": "卧室区域入口",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 15,
+        "durationSeconds": 3,
+        "roomId": "corridor_b",
+        "space": "过道B",
+        "storyVoiceover": "他经常会搬个小凳子坐着发呆。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "退出卫生间A，沿过道B前行，镜头顺滑过渡至衣帽间A入口",
+          "focus": "连接走道",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 16,
+        "durationSeconds": 5,
+        "roomId": "corridor_c",
+        "space": "过道C",
+        "storyVoiceover": "储物间在厨房旁边。\n乱七八糟的杂物都往里塞。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "退出主卧，沿过道C向东南方向行走，展示左侧卧室C入口",
+          "focus": "孩子房区域",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 17,
+        "durationSeconds": 3,
+        "roomId": "corridor_d",
+        "space": "过道D",
+        "storyVoiceover": "门一关，家里永远整洁。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从储物间退回，沿过道D前行，镜头跟随展示卫生间D和储物间门",
+          "focus": "动线连接",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 18,
+        "durationSeconds": 7,
+        "roomId": "storage_room",
+        "space": "储物间",
+        "storyVoiceover": "住了几年，每个角落都熟悉了。\n但现在孩子大了，我们也需要换个环境。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从厨房转向储物间门口，镜头平推展示内部收纳架",
+          "focus": "收纳容量",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 19,
+        "durationSeconds": 3,
+        "roomId": "balcony_b",
+        "space": "阳台B",
+        "storyVoiceover": "行李已经打包好了。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从客厅走向阳台B，镜头平缓前推，展示阳台空间与城市景观",
+          "focus": "休闲阳台",
+          "note": ""
+        }
+      },
+      {
+        "sceneNumber": 20,
+        "durationSeconds": 6,
+        "roomId": "balcony_c",
+        "space": "阳台C",
+        "storyVoiceover": "空荡荡的客厅，阳光还是会照进来。\n希望下一任主人也能在这里找到幸福。",
+        "shot": {
+          "framing": "中景",
+          "cameraMove": "从卧室C阳台门走出，镜头环视阳台弧形栏杆与室外景观",
+          "focus": "观景阳台",
+          "note": ""
+        }
+      }
+    ]
+  }
+]

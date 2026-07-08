@@ -5,13 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently -k -n api,web \"node server/index.mjs\" \"vite --host 127.0.0.1\"",
+    "rednote": "\".data\\rednote-venv\\Scripts\\python.exe\" -X utf8 rednote\\app.py",
+    "rednote:login": "\".data\\rednote-venv\\Scripts\\python.exe\" -X utf8 rednote\\get_cookie.py",
     "build": "tsc && vite build",
     "benchmark": "node benchmark/run-benchmark.mjs",
     "labels:taxonomy": "node benchmark/extract-label-taxonomy.mjs",
     "recognize:floorplan": "node benchmark/recognize-floorplan.mjs",
+    "test:floorplan-agent": "node --test server/agents/floorplan-agent.test.mjs",
+    "test:highlight-agent": "node --test server/agents/property-highlight-agent.test.mjs",
+    "test:property-description": "node --test server/agents/property-description-content.test.mjs",
+    "test:property-script": "node --test server/agents/property-script-agent.test.mjs",
+    "test:property-records": "node --test server/providers/local-property-record-store.test.mjs",
+    "test:voiceover-skill": "node --test server/agents/voiceover-skill-loader.test.mjs",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {
+    "@langchain/langgraph": "^1.4.7",
+    "@langchain/langgraph-checkpoint-sqlite": "^1.0.3",
     "@vitejs/plugin-react": "^5.0.0",
     "concurrently": "^9.2.1",
     "dotenv": "^17.2.3",
@@ -20,7 +30,8 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "typescript": "^5.9.3",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.5",

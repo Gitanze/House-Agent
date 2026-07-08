@@ -49,12 +49,11 @@
       {
         "id": "clear_zoning",
         "label": "动静分区清晰",
-        "count": 7,
+        "count": 6,
         "rawLabels": {
           "动静分区清晰": 3,
           "功能分区清晰明确": 1,
           "功能分区清晰": 1,
-          "厨卫功能分区清晰": 1,
           "动静分区明确": 1
         },
         "sources": [
@@ -73,10 +72,6 @@
           {
             "file": "benchmark/predictions/case_004-agent.json",
             "caseId": "case_004"
-          },
-          {
-            "file": "benchmark/predictions/case_005-agent.json",
-            "caseId": "case_005"
           },
           {
             "file": "benchmark/predictions/case_007-agent.json",
@@ -119,11 +114,10 @@
       {
         "id": "multi_bedroom_flexible",
         "label": "多房间弹性强",
-        "count": 4,
+        "count": 3,
         "rawLabels": {
           "3室布局适配多人口需求": 1,
           "多卧室布局适配大家庭": 1,
-          "多卧室适配大家庭": 1,
           "四房弹性": 1
         },
         "sources": [
@@ -136,10 +130,6 @@
             "caseId": "case_004"
           },
           {
-            "file": "benchmark/predictions/case_005-agent.json",
-            "caseId": "case_005"
-          },
-          {
             "file": "benchmark/predictions/sample-predictions.json",
             "caseId": "case_003"
           }
@@ -148,10 +138,9 @@
       {
         "id": "large_living_room",
         "label": "客厅尺度较好",
-        "count": 3,
+        "count": 2,
         "rawLabels": {
-          "客厅面积大": 2,
-          "客厅宽敞采光佳": 1
+          "客厅面积大": 2
         },
         "sources": [
           {
@@ -161,10 +150,6 @@
           {
             "file": "benchmark/predictions/case_002-test.json",
             "caseId": "case_002"
-          },
-          {
-            "file": "benchmark/predictions/case_005-agent.json",
-            "caseId": "case_005"
           }
         ]
       },
@@ -457,20 +442,6 @@
         ]
       },
       {
-        "id": "unmapped_e58f8ce58dabe68f",
-        "label": "双卫提升使用便利性",
-        "count": 1,
-        "rawLabels": {
-          "双卫提升使用便利性": 1
-        },
-        "sources": [
-          {
-            "file": "benchmark/predictions/case_005-agent.json",
-            "caseId": "case_005"
-          }
-        ]
-      },
-      {
         "id": "unmapped_e58f8ce58da7e5ae",
         "label": "双卧室布局",
         "count": 1,
@@ -517,12 +488,11 @@
       {
         "id": "weak_lighting_room",
         "label": "局部房间采光弱",
-        "count": 6,
+        "count": 5,
         "rawLabels": {
           "卧室C采光弱": 2,
           "暗卫": 2,
-          "部分房间无对外窗": 1,
-          "餐厅无直接采光": 1
+          "部分房间无对外窗": 1
         },
         "sources": [
           {
@@ -542,10 +512,6 @@
             "caseId": "case_002"
           },
           {
-            "file": "benchmark/predictions/case_005-agent.json",
-            "caseId": "case_005"
-          },
-          {
             "file": "benchmark/predictions/sample-predictions.json",
             "caseId": "case_001"
           }
@@ -554,12 +520,10 @@
       {
         "id": "corridor_area_loss",
         "label": "过道占用面积",
-        "count": 5,
+        "count": 3,
         "rawLabels": {
           "走廊占用面积": 2,
-          "过道占用一定室内空间": 1,
-          "走廊占用室内面积": 1,
-          "部分房间动线需经走廊": 1
+          "过道占用一定室内空间": 1
         },
         "sources": [
           {
@@ -569,14 +533,6 @@
           {
             "file": "benchmark/predictions/case_001-agent.json",
             "caseId": "case_001"
-          },
-          {
-            "file": "benchmark/predictions/case_005-agent.json",
-            "caseId": "case_005"
-          },
-          {
-            "file": "benchmark/predictions/case_005-agent.json",
-            "caseId": "case_005"
           },
           {
             "file": "benchmark/predictions/sample-predictions.json",
@@ -970,11 +926,10 @@
       {
         "id": "multi_room_need",
         "label": "多房间需求家庭",
-        "count": 5,
+        "count": 3,
         "rawLabels": {
           "多人口家庭": 1,
-          "大家庭居住": 2,
-          "多房间需求人群": 1,
+          "大家庭居住": 1,
           "多卧室需求家庭": 1
         },
         "sources": [
@@ -985,14 +940,6 @@
           {
             "file": "benchmark/predictions/case_004-agent.json",
             "caseId": "case_004"
-          },
-          {
-            "file": "benchmark/predictions/case_005-agent.json",
-            "caseId": "case_005"
-          },
-          {
-            "file": "benchmark/predictions/case_005-agent.json",
-            "caseId": "case_005"
           },
           {
             "file": "benchmark/predictions/case_007-agent.json",
@@ -1025,20 +972,6 @@
           {
             "file": "benchmark/cases/sample-cases.json",
             "caseId": "case_001"
-          }
-        ]
-      },
-      {
-        "id": "unmapped_e5a49ae5ada9e5ae",
-        "label": "多孩家庭",
-        "count": 1,
-        "rawLabels": {
-          "多孩家庭": 1
-        },
-        "sources": [
-          {
-            "file": "benchmark/predictions/case_005-agent.json",
-            "caseId": "case_005"
           }
         ]
       },

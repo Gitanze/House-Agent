@@ -1,0 +1,105 @@
+[
+  {
+    "id": "case_003",
+    "title": "case_003 人工复核",
+    "imagePath": "benchmark/images/case_003.jpg",
+    "layoutType": "2室1厅1卫",
+    "area": "69.75㎡",
+    "orientation": "南",
+    "rooms": [
+      {
+        "id": "bedroom_a",
+        "type": "primary_bedroom",
+        "name": "卧室A",
+        "position": "北侧",
+        "connectedTo": [
+          "living_room"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "kitchen",
+        "type": "kitchen",
+        "name": "厨房",
+        "position": "中部",
+        "connectedTo": [
+          "living_room"
+        ],
+        "hasWindow": true,
+        "light": "medium"
+      },
+      {
+        "id": "bedroom_b",
+        "type": "bedroom",
+        "name": "卧室B",
+        "position": "南侧中部",
+        "connectedTo": [
+          "living_room",
+          "balcony"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "balcony",
+        "type": "balcony",
+        "name": "阳台",
+        "position": "南侧",
+        "connectedTo": [
+          "bedroom_b"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "living_room",
+        "type": "living_room",
+        "name": "客厅",
+        "position": "东侧",
+        "connectedTo": [
+          "bathroom",
+          "bedroom_a",
+          "bedroom_b",
+          "kitchen"
+        ],
+        "hasWindow": true,
+        "light": "good"
+      },
+      {
+        "id": "bathroom",
+        "type": "bathroom",
+        "name": "卫生间",
+        "position": "东北侧",
+        "connectedTo": [
+          "living_room"
+        ],
+        "hasWindow": false,
+        "light": "weak"
+      }
+    ],
+    "features": {
+      "northSouthVentilation": true,
+      "dynamicStaticZoning": "medium",
+      "kitchenDiningFlow": "medium",
+      "bathroomPressure": "high",
+      "lighting": "good",
+      "storagePotential": "weak"
+    },
+    "pros": [
+      "large_living_room",
+      "kitchen_dining_flow_good"
+    ],
+    "cons": [
+      "single_bath_pressure",
+      "small_room_or_space"
+    ],
+    "suitableFor": [
+      "young_family",
+      "three_person_family"
+    ],
+    "unknowns": [],
+    "needsReview": [],
+    "notes": "由半自动标注台保存"
+  }
+]
