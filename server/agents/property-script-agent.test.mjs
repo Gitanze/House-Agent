@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   auditVoiceoverLayout,
+  auditNarrativeVoice,
   buildPropertyUnderstanding,
   buildShotlistContext,
   buildShotlistMessages,
@@ -42,6 +43,25 @@ test("voiceover stage follows selected duration and style", () => {
   assert.match(messages, /只写可确认的正向信息/);
   assert.match(messages, /禁止使用/);
   assert.match(messages, /这里还要重点说一句/);
+});
+
+test("matrix owner voice rejects viewer perspective drift", () => {
+  const matrixInput = {
+    ...input,
+    scriptVariant: "matrix",
+    targetAudience: "三口之家",
+    narrativeVoice: "owner",
+    contentFocus: "renovation"
+  };
+  const messages = JSON.stringify(buildVoiceoverMessages(matrixInput));
+  assert.match(messages, /业主口吻/);
+  assert.match(messages, /禁止写成看房人/);
+  const audit = auditNarrativeVoice(
+    matrixInput,
+    "这套房我原本只是随便看看。\n看了很多套以后，\n它让我停下来。"
+  );
+  assert.equal(audit.valid, false);
+  assert.match(audit.reason, /看房人口吻/);
 });
 
 test("property understanding organizes objective, relationships, reviews and room photos", () => {

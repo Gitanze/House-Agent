@@ -106,6 +106,29 @@ function scriptStyleLabel(input) {
   return `${matrix.targetAudience} × ${narrativeVoiceLabels[matrix.narrativeVoice]} × ${contentFocusLabels[matrix.contentFocus]}`;
 }
 
+function narrativeVoiceContract(narrativeVoice) {
+  if (narrativeVoice === "owner") {
+    return [
+      "必须使用业主第一人称视角，像原业主在回忆、记录或交接这个家。",
+      "正文开头三句内必须出现“我”或“我们”。",
+      "禁止写成看房人、买家、经纪人或第三方介绍视角。",
+      "禁止出现“看了很多套”“这套让我停下来”“我原本只是随便看看”“看房时”“如果我是买家”等看房人口吻。"
+    ].join("\n");
+  }
+  if (narrativeVoice === "viewer") {
+    return [
+      "必须使用看房人第一人称视角，像真实买家/看房人在代入判断。",
+      "可以写“我为什么被打动”，但不制造房屋缺点。",
+      "禁止写成原业主告别、业主回忆或经纪人报参数。"
+    ].join("\n");
+  }
+  return [
+    "必须使用抽象口吻：强梗、拟人、夸张设定可以拉满。",
+    "夸张的是表达，不是事实；每个梗后面都要落回真实空间或人工亮点。",
+    "禁止退回普通看房讲解腔或业主回忆腔。"
+  ].join("\n");
+}
+
 const unknownFactValues = new Set(["", "待确认", "unknown", "未知", "不确定"]);
 const chineseNumbers = {
   一: 1, 二: 2, 两: 2, 三: 3, 四: 4, 五: 5,
@@ -437,7 +460,7 @@ export function buildVoiceoverMessages(input, skillContext = loadVoiceoverSkill(
       {
         role: "system",
         content:
-          `你正在执行 residential-content-matrix-voiceover。以下是本次运行时从内容矩阵 Skill Markdown 动态加载的唯一写作参考：\n\n<skill-reference>\n${skillContext.promptReference}\n</skill-reference>\n\n最高优先级覆盖规则：本次组合为“${matrix.targetAudience} × ${narrativeVoiceLabels[matrix.narrativeVoice]} × ${contentFocusLabels[matrix.contentFocus]}”。先建立完整房源认知，再生成一条脚本策略，最后写完整口播。房源事实严格按以下优先级使用：人工复核与人工填写户型 > 加入人工补充后的描述 > 对应房间的实景识别细节。人工补充亮点必须全部进入口播，并作为更细讲解侧重展开；不得集中罗列，不得原样硬贴。抽象口吻可以极致、强梗、夸张和拟人，但只能夸张表达，不能虚构不存在的房间、学校、改造、配套或房源事实。全程只写正向信息，不说房子的不好。authoritativeLayout 是唯一允许写入口播的整套厅室数量；layoutStatus 为 unconfirmed 时，正文禁止出现任何具体“几室几厅”表述。实景照片只作为对应房间的可选细节点缀，每个房间最多使用1个，不得串房。保持真实漫游顺序，默认从入口进入公共空间。${lengthRule}。输出 JSON。`
+          `你正在执行 residential-content-matrix-voiceover。以下是本次运行时从内容矩阵 Skill Markdown 动态加载的唯一写作参考：\n\n<skill-reference>\n${skillContext.promptReference}\n</skill-reference>\n\n最高优先级覆盖规则：本次组合为“${matrix.targetAudience} × ${narrativeVoiceLabels[matrix.narrativeVoice]} × ${contentFocusLabels[matrix.contentFocus]}”。\n\n本次叙事口吻硬约束：\n${narrativeVoiceContract(matrix.narrativeVoice)}\n\n先建立完整房源认知，再生成一条脚本策略，最后写完整口播。房源事实严格按以下优先级使用：人工复核与人工填写户型 > 加入人工补充后的描述 > 对应房间的实景识别细节。人工补充亮点必须全部进入口播，并作为更细讲解侧重展开；不得集中罗列，不得原样硬贴。抽象口吻可以极致、强梗、夸张和拟人，但只能夸张表达，不能虚构不存在的房间、学校、改造、配套或房源事实。全程只写正向信息，不说房子的不好。authoritativeLayout 是唯一允许写入口播的整套厅室数量；layoutStatus 为 unconfirmed 时，正文禁止出现任何具体“几室几厅”表述。实景照片只作为对应房间的可选细节点缀，每个房间最多使用1个，不得串房。保持真实漫游顺序，默认从入口进入公共空间。${lengthRule}。输出 JSON。`
       },
       {
         role: "user",
@@ -495,6 +518,57 @@ export function auditVoiceoverLayout(input, voiceover) {
   };
 }
 
+export function auditNarrativeVoice(input, voiceover) {
+  if (!isMatrixInput(input)) return { valid: true, reason: "" };
+  const matrix = matrixInput(input);
+  const text = String(voiceover || "");
+  if (matrix.narrativeVoice === "owner") {
+    const earlyText = text.split(/\n+/).slice(0, 3).join("");
+    const hasOwnerFirstPerson = /我|我们/.test(earlyText);
+    const viewerPhrases = [
+      "看了很多套",
+      "看过几套",
+      "这套让我停下来",
+      "我原本只是随便看看",
+      "看房时",
+      "如果我是买家",
+      "作为买家",
+      "看房人"
+    ].filter((phrase) => text.includes(phrase));
+    if (!hasOwnerFirstPerson || viewerPhrases.length) {
+      return {
+        valid: false,
+        reason: [
+          !hasOwnerFirstPerson ? "开头三句内没有业主第一人称“我/我们”" : "",
+          viewerPhrases.length ? `出现看房人口吻：${viewerPhrases.join("、")}` : ""
+        ].filter(Boolean).join("；")
+      };
+    }
+  }
+  if (matrix.narrativeVoice === "viewer" && /走之前|最后再记录|我们住在这里|这个家陪/.test(text)) {
+    return {
+      valid: false,
+      reason: "看房人口吻中出现了业主回忆/告别视角"
+    };
+  }
+  return { valid: true, reason: "" };
+}
+
+async function correctNarrativeVoiceIfNeeded(jsonClient, input, skillContext, voiceoverResult) {
+  const audit = auditNarrativeVoice(input, voiceoverResult.voiceover);
+  if (audit.valid || !jsonClient?.available) return voiceoverResult;
+  const matrix = matrixInput(input);
+  const correction = await jsonClient.generate([
+    ...buildVoiceoverMessages(input, skillContext),
+    {
+      role: "user",
+      content: `上一版口播没有遵守本次叙事口吻：${narrativeVoiceLabels[matrix.narrativeVoice]}。问题：${audit.reason}。请保留房源事实、人工亮点和${contentFocusLabels[matrix.contentFocus]}重点，但彻底改成本次指定口吻。尤其当口吻是“业主口吻”时，必须是原业主第一人称回忆/记录/交接，不得写成看房人。重新输出完整 JSON。`
+    }
+  ]);
+  const parsed = voiceoverResultSchema.safeParse(correction);
+  return parsed.success ? parsed.data : voiceoverResult;
+}
+
 export async function generatePropertyScript(jsonClient, rawInput) {
   const input = inputSchema.parse(rawInput);
   if (input.baseScript && !input.refinementInstruction) {
@@ -531,6 +605,12 @@ export async function generatePropertyScript(jsonClient, rawInput) {
           const retryParsed = voiceoverResultSchema.safeParse(retry);
           if (retryParsed.success) voiceoverResult = retryParsed.data;
         }
+        voiceoverResult = await correctNarrativeVoiceIfNeeded(
+          jsonClient,
+          input,
+          skillContext,
+          voiceoverResult
+        );
         let layoutAudit = auditVoiceoverLayout(input, voiceoverResult.voiceover);
         if (!layoutAudit.valid) {
           const correction = await jsonClient.generate([
