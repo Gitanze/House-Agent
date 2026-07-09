@@ -3,6 +3,7 @@ import {
   BadgeCheck,
   BookOpen,
   Database,
+  Download,
   FileImage,
   Home,
   Loader2,
@@ -352,6 +353,59 @@ function linesToArray(value: string) {
 
 function arrayToLines(value?: string[]) {
   return (value ?? []).join("\n");
+}
+
+function formatSrtTime(seconds: number) {
+  const safeSeconds = Math.max(0, seconds);
+  const whole = Math.floor(safeSeconds);
+  const milliseconds = Math.round((safeSeconds - whole) * 1000);
+  const hours = Math.floor(whole / 3600);
+  const minutes = Math.floor((whole % 3600) / 60);
+  const secs = whole % 60;
+  const pad = (value: number, size = 2) => String(value).padStart(size, "0");
+  return `${pad(hours)}:${pad(minutes)}:${pad(secs)},${pad(milliseconds, 3)}`;
+}
+
+function buildSrtFromScript(result: PropertyScriptResult) {
+  let cursor = 0;
+  let index = 1;
+  const blocks: string[] = [];
+  result.scenes.forEach((scene) => {
+    const duration = Math.max(1, Number(scene.durationSeconds) || 1);
+    const text = String(scene.storyVoiceover || "")
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .join("\n");
+    const start = cursor;
+    const end = cursor + duration;
+    cursor = end;
+    if (!text) return;
+    blocks.push(`${index}\n${formatSrtTime(start)} --> ${formatSrtTime(end)}\n${text}`);
+    index += 1;
+  });
+  return `${blocks.join("\n\n")}\n`;
+}
+
+function safeDownloadName(value: string, fallback: string) {
+  const cleaned = value
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, "-")
+    .replace(/\s+/g, " ")
+    .slice(0, 80);
+  return cleaned || fallback;
+}
+
+function downloadTextFile(fileName: string, content: string, mime = "text/plain;charset=utf-8") {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 function nextRoomId(rooms: Room[]) {
@@ -1512,6 +1566,18 @@ function PropertyHighlightAgentPanel(props: {
     props.onRecordRefresh();
   }
 
+  function exportVoiceoverSrt() {
+    if (!result) return;
+    const content = buildSrtFromScript(result);
+    if (!content.trim()) {
+      setError("当前脚本没有可导出的旁白内容。");
+      return;
+    }
+    const baseName = safeDownloadName(scriptName || result.scriptName || result.styleLabel || "房源视频脚本", "房源视频脚本");
+    downloadTextFile(`${baseName}.srt`, content, "application/x-subrip;charset=utf-8");
+    setStatus("旁白字幕已导出为 SRT 文件");
+  }
+
   async function deleteScript(scriptId: string) {
     if (!props.propertyRecordId || (activeScriptId === scriptId && isDirty && !window.confirm("该方案还有未保存修改，确定删除吗？")) || !window.confirm("确定删除这个脚本方案吗？")) return;
     const response = await fetch(`/api/property-records/${props.propertyRecordId}/scripts/${scriptId}`, { method: "DELETE" });
@@ -1706,6 +1772,7 @@ function PropertyHighlightAgentPanel(props: {
                 <small>{parentScript ? `源自：${parentScript.name}` : "初始生成方案"}{isDirty ? " · 有未保存修改" : " · 已保存"}</small>
               </div>
               <button type="button" className="case-action" onClick={openCaseDialog}><BookOpen size={15} />加入 Skill 案例库</button>
+              <button type="button" className="case-action" onClick={exportVoiceoverSrt}><Download size={15} />导出 SRT 字幕</button>
               <button type="button" onClick={saveScript} disabled={!isDirty}><Save size={15} />保存脚本修改</button>
             </div>
           )}
