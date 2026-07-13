@@ -1017,8 +1017,6 @@ export function App() {
             uploadedImage={uploadedImage}
             propertyArea={propertyArea}
             propertyFacts={propertyFacts}
-            familyType={familyType}
-            focusTags={focusTags}
             manualHighlightsText={manualHighlightsText}
             result={result}
             activeRecord={activeRecord}
@@ -1032,8 +1030,6 @@ export function App() {
             onPropertyFactsChange={(patch) =>
               setPropertyFacts((current) => ({ ...current, ...patch }))
             }
-            onFamilyTypeChange={setFamilyType}
-            onToggleFocus={toggleFocus}
             onManualHighlightsChange={setManualHighlightsText}
             onSubmit={submit}
             onRecordRefresh={() => activeRecord && openPropertyRecord(activeRecord.id)}
@@ -1132,8 +1128,6 @@ function BriefMode(props: {
   uploadedImage: UploadedImage | null;
   propertyArea: string;
   propertyFacts: PropertyFacts;
-  familyType: string;
-  focusTags: string[];
   manualHighlightsText: string;
   result: AnalyzeResponse | null;
   activeRecord: PropertyRecord | null;
@@ -1145,8 +1139,6 @@ function BriefMode(props: {
   onImageChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onPropertyAreaChange: (value: string) => void;
   onPropertyFactsChange: (patch: Partial<PropertyFacts>) => void;
-  onFamilyTypeChange: (value: string) => void;
-  onToggleFocus: (tag: string) => void;
   onManualHighlightsChange: (value: string) => void;
   onSubmit: (event: FormEvent) => void;
   onRecordRefresh: () => void;
@@ -1206,12 +1198,6 @@ function BriefMode(props: {
           />
           <small>面积以人工填写为准，不使用平面图估算。</small>
         </label>
-        <ControlFields
-          familyType={props.familyType}
-          focusTags={props.focusTags}
-          onFamilyTypeChange={props.onFamilyTypeChange}
-          onToggleFocus={props.onToggleFocus}
-        />
         <label className="field">
           <span>人工补充亮点</span>
           <textarea
