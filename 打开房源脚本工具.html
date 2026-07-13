@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>打开房源脚本工具</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      color: #162033;
+      background: linear-gradient(135deg, #f3f8ff, #f8fff8);
+    }
+    main {
+      width: min(560px, calc(100vw - 40px));
+      padding: 34px;
+      border: 1px solid #dce5f1;
+      border-radius: 24px;
+      background: rgba(255,255,255,.88);
+      box-shadow: 0 18px 50px rgba(34, 61, 91, .12);
+    }
+    h1 { margin: 0 0 12px; font-size: 28px; }
+    p { line-height: 1.75; color: #596579; }
+    a {
+      display: inline-flex;
+      margin-top: 12px;
+      padding: 13px 18px;
+      border-radius: 999px;
+      color: white;
+      background: #0f7a5b;
+      text-decoration: none;
+      font-weight: 800;
+    }
+    code {
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: #eef4ff;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>房源脚本工具</h1>
+    <p>如果服务已经启动，点击下面按钮即可打开页面。</p>
+    <a href="http://127.0.0.1:5173/">打开工具页面</a>
+    <p>如果打不开，请先启动服务：Windows 双击 <code>打开房源脚本工具.cmd</code>；Mac 双击 <code>打开房源脚本工具.command</code>。启动脚本会检查 Node.js LTS、安装依赖，并自动打开页面。</p>
+  </main>
+</body>
+</html>
